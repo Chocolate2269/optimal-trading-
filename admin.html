@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimal Trading - Admin Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --glass-bg: rgba(255, 255, 255, 0.12);
+            --glass-border: rgba(255, 255, 255, 0.35);
+            --text-primary: #ffffff;
+            --text-muted: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-gold: #f59e0b;
+            --accent-purple: #8b5cf6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .admin-title {
+            font-size: 28px;
+            font-weight: 900;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .users-table-container {
+            padding: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            overflow-x: auto;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .users-table th,
+        .users-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .users-table th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .users-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: var(--glass-border);
+            color: var(--text-primary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-admin {
+            background: rgba(139, 92, 246, 0.3);
+            color: #c4b5fd;
+        }
+
+        .badge-user {
+            background: rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            z-index: 2000;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="adminLogin">
+        <div class="login-card">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="font-size: 32px; font-weight: 900;">⚡ OPTIMAL</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Admin Panel</div>
+            </div>
+            
+            <h3 style="margin-bottom: 20px; font-size: 20px;">Admin Login</h3>
+            
+            <form id="adminLoginForm">
+                <input type="email" id="adminEmail" class="input-field" placeholder="Admin Email" required>
+                <input type="password" id="adminPassword" class="input-field" placeholder="Password" required>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login as Admin</button>
+            </form>
+            
+            <div style="margin-top: 16px; text-align: center;">
+                <a href="index.html" style="color: var(--text-muted); text-decoration: none;">← Back to Platform</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-container" id="adminDashboard" style="display: none;">
+        <div class="admin-header">
+            <div>
+                <div class="admin-title">👑 Admin Panel</div>
+                <div id="adminEmailDisplay" style="font-size: 12px; color: var(--text-muted);">admin@optimaltrading.com</div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-outline" onclick="window.location.href='index.html'">View Platform</button>
+                <button class="btn btn-danger" onclick="adminLogout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="admin-stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalUsers" style="color: var(--accent-blue);">0</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalBalance" style="color: var(--accent-green);">$0.00</div>
+                <div class="stat-label">Total Balance</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalAdmins" style="color: var(--accent-purple);">0</div>
+                <div class="stat-label">Admins</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalTrades" style="color: var(--accent-gold);">0</div>
+                <div class="stat-label">Total Trades</div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="users-table-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>All Users</h2>
+                <button class="btn btn-outline" onclick="refreshUsers()">🔄 Refresh</button>
+            </div>
+            
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Balance</th>
+                        <th>Account Type</th>
+                        <th>Member Since</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Loading users...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGAmwvg6QfEAIth-XQYblRtZ47WSUMppQ",
+            authDomain: "optimal-trading.firebaseapp.com",
+            projectId: "optimal-trading",
+            storageBucket: "optimal-trading.firebasestorage.app",
+            messagingSenderId: "180919975679",
+            appId: "1:180919975679:web:31a8bf720f08df6d7cd6ca",
+            measurementId: "G-4J31RFJK03"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let isAdmin = false;
+
+        // Toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            toast.style.borderColor = type === 'success' ? 'var(--accent-green)' : 'var(--accent-red)';
+            toast.style.color = type === 'success' ? 'var(--accent-green)' : 'var(--accent-red)';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        // Admin Login
+        document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    
+                    // Check if user is admin
+                    return db.collection('users').doc(user.uid).get().then((doc) => {
+                        if (doc.exists && doc.data().isAdmin) {
+                            isAdmin = true;
+                            showAdminDashboard(user);
+                        } else {
+                            showToast('Access denied. Admin only!', 'error');
+                            auth.signOut();
+                        }
+                    });
+                })
+                .catch((error) => {
+                    showToast(error.message, 'error');
+                });
+        });
+
+        function showAdminDashboard(user) {
+            document.getElementById('adminLogin').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            document.getElementById('adminEmailDisplay').textContent = user.email;
+            loadAdminData();
+        }
+
+        function adminLogout() {
+            auth.signOut().then(() => {
+                isAdmin = false;
+                document.getElementById('adminLogin').style.display = 'flex';
+                document.getElementById('adminDashboard').style.display = 'none';
+                document.getElementById('adminLoginForm').reset();
+            });
+        }
+
+        function loadAdminData() {
+            if (!isAdmin) return;
+            
+            let totalUsers = 0;
+            let totalBalance = 0;
+            let totalAdmins = 0;
+            
+            db.collection('users').get().then((snapshot) => {
+                const tableBody = document.getElementById('usersTableBody');
+                tableBody.innerHTML = '';
+                
+                snapshot.forEach((doc) => {
+                    const userData = doc.data();
+                    const userId = doc.id;
+                    
+                    totalUsers++;
+                    totalBalance += (userData.balance || 0);
+                    if (userData.isAdmin) totalAdmins++;
+                    
+                    const createdAt = userData.createdAt ? userData.createdAt.toDate().toLocaleDateString() : '-';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${userData.name || '-'}</strong></td>
+                        <td>${userData.email || '-'}</td>
+                        <td style="color: var(--accent-green); font-weight: 600;">$${(userData.balance || 0).toFixed(2)}</td>
+                        <td><span class="badge ${userData.isAdmin ? 'badge-admin' : 'badge-user'}">${userData.isAdmin ? 'Admin' : 'User'}</span></td>
+                        <td>${createdAt}</td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-success" style="padding: 6px 12px; font-size: 11px;" onclick="addBalance('${userId}', '${userData.name}')">+ $</button>
+                                <button class="btn btn-outline" style="padding: 6px 12px; font-size: 11px;" onclick="viewUser('${userId}')">View</button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                
+                document.getElementById('totalUsers').textContent = totalUsers;
+                document.getElementById('totalBalance').textContent = '$' + totalBalance.toFixed(2);
+                document.getElementById('totalAdmins').textContent = totalAdmins;
+            });
+            
+            // Load trades count
+            db.collection('trades').get().then((snapshot) => {
+                document.getElementById('totalTrades').textContent = snapshot.size;
+            }).catch(() => {
+                document.getElementById('totalTrades').textContent = '0';
+            });
+        }
+
+        function refreshUsers() {
+            loadAdminData();
+            showToast('Users refreshed');
+        }
+
+        function addBalance(userId, userName) {
+            const amount = prompt(`Enter amount to add to ${userName}'s balance:`);
+            if (amount && parseFloat(amount) > 0) {
+                db.collection('users').doc(userId).update({
+                    balance: firebase.firestore.FieldValue.increment(parseFloat(amount))
+                }).then(() => {
+                    showToast(`$${amount} added to ${userName}`);
+                    loadAdminData();
+                });
+            }
+        }
+
+        function viewUser(userId) {
+            db.collection('users').doc(userId).get().then((doc) => {
+                if (doc.exists) {
+                    const userData = doc.data();
+                    alert(`
+                        Name: ${userData.name}
+                        Email: ${userData.email}
+                        Balance: $${(userData.balance || 0).toFixed(2)}
+                        Type: ${userData.isAdmin ? 'Admin' : 'User'}
+                    `);
+                }
+            });
+        }
+
+        // Check auth state on load
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                db.collection('users').doc(user.uid).get().then((doc) => {
+                    if
