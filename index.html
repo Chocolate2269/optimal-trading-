@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimal Trading - Glassmorphism Design</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #1a1a2e;
+            --bg-light: #16213e;
+            --bg-accent: #0f3460;
+            --glass-white: rgba(255, 255, 255, 0.15);
+            --glass-white-strong: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --glass-shadow: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --accent-blue: #4a9eff;
+            --accent-purple: #9d4edd;
+            --accent-cyan: #00d4ff;
+            --accent-green: #00ff88;
+            --accent-red: #ff4444;
+            --accent-gold: #ffaa00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Bright colorful background orbs */
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 1;
+            animation: orbFloat 8s ease-in-out infinite;
+        }
+
+        .orb-blue {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(74, 158, 255, 0.4), transparent 70%);
+            top: -100px;
+            left: -100px;
+        }
+
+        .orb-purple {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.35), transparent 70%);
+            bottom: -50px;
+            right: -50px;
+            animation-delay: -3s;
+        }
+
+        .orb-cyan {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.3), transparent 70%);
+            top: 40%;
+            left: 60%;
+            animation-delay: -5s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        /* TRUE GLASSMORPHISM EFFECT */
+        .glass {
+            background: var(--glass-white);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 var(--glass-shadow);
+            position: relative;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .glass:hover {
+            background: var(--glass-white-strong);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                0 12px 48px rgba(0, 0, 0, 0.2),
+                0 0 60px rgba(255, 255, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* Glass with frosted effect */
+        .glass-frosted {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 24px;
+            box-shadow: 
+                0 8px 32px rgba(31, 38, 135, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        /* Shine reflection */
+        .glass-frosted::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                transparent 100%
+            );
+            animation: glassShine 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes glassShine {
+            0%, 60% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Bright text effects */
+        .text-shine {
+            background: linear-gradient(135deg, #ffffff 0%, #a8d8ff 50%, #ffffff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: textShimmer 3s linear infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+        }
+
+        @keyframes textShimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* Price display */
+        .price-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 36px;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(74, 158, 255, 0.6),
+                0 0 40px rgba(74, 158, 255, 0.4);
+            animation: priceGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes priceGlow {
+            0%, 100% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(74, 158, 255, 0.6); }
+            50% { text-shadow: 0 0 20px rgba(255, 255, 255, 1), 0 0 40px rgba(74, 158, 255, 0.8), 0 0 60px rgba(74, 158, 255, 0.6); }
+        }
+
+        /* Glass buttons */
+        .btn-glass {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-glass:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-buy {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: rgba(0, 255, 136, 0.5);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-buy:hover {
+            background: rgba(0, 255, 136, 0.5);
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.5);
+        }
+
+        .btn-sell {
+            background: rgba(255, 68, 68, 0.3);
+            border-color: rgba(255, 68, 68, 0.5);
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+        }
+
+        .btn-sell:hover {
+            background: rgba(255, 68, 68, 0.5);
+            box-shadow: 0 0 40px rgba(255, 68, 68, 0.5);
+        }
+
+        /* Market items */
+        .market-item {
+            padding: 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 8px;
+            border: 1px solid transparent;
+        }
+
+        .market-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateX(6px);
+        }
+
+        .market-item.active {
+            background: rgba(74, 158, 255, 0.2);
+            border-color: rgba(74, 158, 255, 0.5);
+            box-shadow: 0 0 20px rgba(74, 158, 255, 0.3);
+        }
+
+        /* Layout */
+        .optimal-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr 340px;
+            gap: 20px;
+            padding: 20px;
+            height: 100vh;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Stats */
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .optimal-layout {
+                grid-template-columns: 220px 1fr;
+            }
+            .optimal-layout > aside:last-child {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .optimal-layout {
+                grid-template-columns: 1fr;
+                height: auto;
+                padding: 12px;
+                gap: 16px;
+            }
+            .price-display {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Orbs -->
+    <div class="bg-orb orb-blue"></div>
+    <div class="bg-orb orb-purple"></div>
+    <div class="bg-orb orb-cyan"></div>
+    
+    <!-- Main Layout -->
+    <div class="optimal-layout">
+        
+        <!-- Navigation Panel -->
+        <aside class="glass-frosted" style="padding: 24px; display: flex; flex-direction: column;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <div style="font-size: 28px; font-weight: 900; margin-bottom: 6px;">
+                    <span class="text-shine">⚡ OPTIMAL</span>
+                </div>
+                <div style="font-size: 10px; color: #e0e0e0; letter-spacing: 3px; text-transform: uppercase; opacity: 0.8;">Trading Platform</div>
+            </div>
+            
+            <div style="font-size: 10px; color: #e0e0e0; letter-spacing: 2px; text-transform: uppercase; margin: 12px 0; opacity: 0.8;">Markets</div>
+            
+            <div class="market-item active">
+                <span>BTC/USDT</span>
+                <span style="color: #00ff88;">+2.45%</span>
+            </div>
+            <div class="market-item">
+                <span>ETH/USDT</span>
+                <span style="color: #00ff88;">+1.87%</span>
+            </div>
+            <div class="market-item">
+                <span>SOL/USDT</span>
+                <span style="color: #ff4444;">-0.92%</span>
+            </div>
+            <div class="market-item">
+                <span>BNB/USDT</span>
+                <span style="color: #00ff88;">+0.54%</span>
+            </div>
+            <div class="market-item">
+                <span>ADA/USDT</span>
+                <span style="color: #ff4444;">-1.23%</span>
+            </div>
+            <div class="market-item">
+                <span>XRP/USDT</span>
+                <span style="color: #00ff88;">+3.21%</span>
+            </div>
+            
+            <div style="margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.3); padding-top: 20px;">
+                <div style="font-size: 10px; color: #e0e0e0; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; opacity: 0.8;">Account</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 14px; margin-bottom: 6px;">
+                    Balance: <strong>$125,430.50</strong>
+                </div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #00ff88;">
+                    P&L Today: +$2,340.80
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Chart Area -->
+        <main>
+            <div class="glass" style="padding: 24px; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <div>
+                        <h2 style="margin: 0; font-size: 22px; font-weight: 800;">BTC/USDT</h2>
+                        <div class="price-display">$67,234.50</div>
+                        <div style="color: #00ff88; font-size: 14px; margin-top: 4px;">▲ +2.45% (24h)</div>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-glass btn-buy">Buy BTC</button>
+                        <button class="btn-glass btn-sell">Sell BTC</button>
+                    </div>
+                </div>
+                
+                <!-- Chart Area -->
+                <div class="glass" style="height: 400px; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                    <div style="text-align: center; opacity: 0.7;">
+                        <div style="font-size: 64px; margin-bottom: 16px;">📈</div>
+                        <div style="font-size: 16px;">Candlestick Chart Area</div>
+                        <div style="font-size: 12px; margin-top: 8px;">Live data will appear here</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px;">
+                <div class="stat-card">
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700;">$1.2T</div>
+                    <div style="font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Market Cap</div>
+                </div>
+                <div class="stat-card">
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700;">$890M</div>
+                    <div style="font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Open Interest</div>
+                </div>
+                <div class="stat-card">
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700;">0.01%</div>
+                    <div style="font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Funding Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700;">45.2K</div>
+                    <div style="font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">24h Trades</div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Order Book Panel -->
+        <aside class="glass-frosted" style="padding: 24px;">
+            <h3 style="margin: 0 0 20px; font-size: 18px; font-weight: 800;">Order Book</h3>
+            
+            <div style="display: flex; justify-content: space-between; font-size: 10px; opacity: 0.8; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 1px;">
+                <span>Price (USDT)</span>
+                <span>Amount (BTC)</span>
+            </div>
+            
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px;">
+                <div style="display: flex; justify-content: space-between; padding: 10px; color: #ff4444; border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                    <span>67,250.00</span>
+                    <span>2.5</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px; color: #ff4444; border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                    <span>67,248.50</span>
+                    <span>1.8</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px; color: #ff4444; border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                    <span>67,245.00</span>
+                    <span>3.2</span>
+                </div>
+            </div>
+            
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.3); margin: 20px 0; padding: 16px 0; text-align: center;">
+                <span class="price-display" style="font-size: 22px;">$67,234.50</span>
+            </div>
+            
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px;">
+                <div style="display: flex; justify-content: space-between; padding: 10px; color: #00ff88; border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                    <span>67,230.00</span>
+                    <span>1.5</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px; color: #00ff88; border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                    <span>67,225.00</span>
+                    <span>4.2</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px; color: #00ff88; border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                    <span>67,220.00</span>
+                    <span>2.8</span>
+                </div>
+            </div>
+            
+            <div style="margin-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.3); padding-top: 20px;">
+                <h3 style="margin: 0 0 16px; font-size: 18px; font-weight: 800;">Recent Trades</h3>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; color: #00ff88;">
+                        <span>14:32:05</span>
+                        <span>67,230.00</span>
+                        <span>0.5 BTC</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; color: #ff4444;">
+                        <span>14:31:48</span>
+                        <span>67,225.00</span>
+                        <span>1.2 BTC</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; color: #00ff88;">
+                        <span>14:30:22</span>
+                        <span>67,240.00</span>
+                        <span>0.8 BTC</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</body>
+</html>
