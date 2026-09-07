@@ -1,1 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimal Trading - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <style>
+        :root {
+            --bg-base: #1a1a2e;
+            --bg-light: #16213e;
+            --bg-accent: #0f3460;
+            --glass-white: rgba(255, 255, 255, 0.15);
+            --glass-white-strong: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --glass-shadow: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --accent-blue: #4a9eff;
+            --accent-purple: #9d4edd;
+            --accent-cyan: #00d4ff;
+            --accent-green: #00ff88;
+            --accent-red: #ff4444;
+            --accent-gold: #ffaa00;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 1;
+            animation: orbFloat 8s ease-in-out infinite;
+        }
+
+        .orb-blue {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(74, 158, 255, 0.4), transparent 70%);
+            top: -100px;
+            left: -100px;
+        }
+
+        .orb-purple {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.35), transparent 70%);
+            bottom: -50px;
+            right: -50px;
+            animation-delay: -3s;
+        }
+
+        .orb-cyan {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.3), transparent 70%);
+            top: 40%;
+            left: 60%;
+            animation-delay: -5s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        .glass {
+            background: var(--glass-white);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 var(--glass-shadow);
+            position: relative;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .glass:hover {
+            background: var(--glass-white-strong);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                0 12px 48px rgba(0, 0, 0, 0.2),
+                0 0 60px rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-frosted {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 24px;
+            box-shadow: 
+                0 8px 32px rgba(31, 38, 135, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .glass-frosted::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+            animation: glassShine 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes glassShine {
+            0%, 60% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .text-shine {
+            background: linear-gradient(135deg, #ffffff 0%, #a8d8ff 50%, #ffffff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: textShimmer 3s linear infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+        }
+
+        @keyframes textShimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .price-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 36px;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(74, 158, 255, 0.6),
+                0 0 40px rgba(74, 158, 255, 0.4);
+            animation: priceGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes priceGlow {
+            0%, 100% { text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(74,158,255,0.6); }
+            50% { text-shadow: 0 0 20px rgba(255,255,255,1), 0 0 40px rgba(74,158,255,0.8), 0 0 60px rgba(74,158,255,0.6); }
+        }
+
+        .btn-glass {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .btn-glass:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-buy {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: rgba(0, 255, 136, 0.5);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-buy:hover {
+            background: rgba(0, 255, 136, 0.5);
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.5);
+        }
+
+        .btn-sell {
+            background: rgba(255, 68, 68, 0.3);
+            border-color: rgba(255, 68, 68, 0.5);
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+        }
+
+        .btn-sell:hover {
+            background: rgba(255, 68, 68, 0.5);
+            box-shadow: 0 0 40px rgba(255, 68, 68, 0.5);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-outline:hover {
+            background: var(--glass-white);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-danger {
+            background: rgba(255, 68, 68, 0.3);
+            border-color: rgba(255, 68, 68, 0.5);
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(26, 26, 46, 0.5);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-logo {
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* Dashboard Layout */
+        .dashboard-container {
+            position: relative;
+            z-index: 10;
+            padding: 90px 20px 20px;
+            min-height: 100vh;
+        }
+
+        .optimal-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr 360px;
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            min-height: calc(100vh - 110px);
+        }
+
+        /* Market Items */
+        .market-item {
+            padding: 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 8px;
+            border: 1px solid transparent;
+        }
+
+        .market-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateX(6px);
+        }
+
+        .market-item.active {
+            background: rgba(74, 158, 255, 0.2);
+            border-color: rgba(74, 158, 255, 0.5);
+            box-shadow: 0 0 20px rgba(74, 158, 255, 0.3);
+        }
+
+        /* Order Items */
+        .order-item {
+            font-family: 'JetBrains Mono', monospace;
+            padding: 10px 14px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .order-item.buy {
+            color: #00ff88;
+            text-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+        }
+
+        .order-item.sell {
+            color: #ff4444;
+            text-shadow: 0 0 15px rgba(255, 68, 68, 0.5);
+        }
+
+        .order-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(6px);
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: rgba(30, 30, 50, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 2000;
+            display: none;
+        }
+
+        @media (max-width: 1400px) {
+            .optimal-layout {
+                grid-template-columns: 240px 1fr;
+            }
+            .optimal-layout > aside:last-child {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .optimal-layout {
+                grid-template-columns: 1fr;
+            }
+            .optimal-layout > aside:last-child {
+                grid-column: span 1;
+            }
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 12px 16px;
+            }
+            .price-display {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Orbs -->
+    <div class="bg-orb orb-blue"></div>
+    <div class="bg-orb orb-purple"></div>
+    <div class="bg-orb orb-cyan"></div>
+    
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+    
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-logo text-shine">⚡ OPTIMAL</div>
+        <div class="navbar-links">
+            <span id="navUserName" style="font-weight: 600;"></span>
+            <span id="navUserBalance" style="color: #00ff88; font-weight: 700;"></span>
+            <button class="btn-glass btn-outline" onclick="window.location.href='index.html'">🏠 Home</button>
+            <button class="btn-glass btn-danger" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+    
+    <!-- Dashboard -->
+    <div class="dashboard-container">
+        <div class="optimal-layout">
+            
+            <!-- Left Panel - Navigation & Markets -->
+            <aside class="glass-frosted" style="padding: 24px; display: flex; flex-direction: column;">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <div class="text-shine" style="font-size: 22px; font-weight: 900;">⚡ OPTIMAL</div>
+                    <div style="font-size: 10px; color: #e0e0e0; letter-spacing: 3px; text-transform: uppercase; opacity: 0.8;">Trading Platform</div>
+                </div>
+                
+                <div style="font-size: 10px; color: #e0e0e0; letter-spacing: 2px; text-transform: uppercase; margin: 12px 0; opacity: 0.8;">Balance</div>
+                <div class="price-display" id="userBalance" style="font-size: 28px;">$0.00</div>
+                
+                <div style="font-size: 10px; color: #e0e0e0; letter-spacing: 2px; text-transform: uppercase; margin: 20px 0 10px; opacity: 0.8;">Markets</div>
+                
+                <div class="market-item active">
+                    <span>BTC/USDT</span>
+                    <span style="color: #00ff88;">+2.45%</span>
+                </div>
+                <div class="market-item">
+                    <span>ETH/USDT</span>
+                    <span style="color: #00ff88;">+1.87%</span>
+                </div>
+                <div class="market-item">
+                    <span>SOL/USDT</span>
+                    <span style="color: #ff4444;">-0.92%</span>
+                </div>
+                <div class="market-item">
+                    <span>BNB/USDT</span>
+                    <span style="color: #00ff88;">+0.54%</span>
+                </div>
+                <div class="market-item">
+                    <span>ADA/USDT</span>
+                    <span style="color: #ff4444;">-1.23%</span>
+                </div>
+                <div class="market-item">
+                    <span>XRP/USDT</span>
+                    <span style="color: #00ff88;">+3.21%</span>
+                </div>
+                
+                <div style="margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.3); padding-top: 20px;">
+                    <div style="font-size: 10px; color: #e0e0e0; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; opacity: 0.8;">Account</div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; margin-bottom: 6px;">
+                        <span id="infoName">-</span>
+                    </div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #e0e0e0;">
+                        <span id="infoEmail">-</span>
+                    </div>
+                </div>
+            </aside>
+            
+            <!-- Center - Chart & Stats -->
+            <main>
+                <div class="glass" style="padding: 24px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <div>
+                            <h2 style="margin: 0; font-size: 22px; font-weight: 800;">BTC/USDT</h2>
+                            <div class="price-display">$67,234.50</div>
+                            <div style="color: #00ff88; font-size: 14px; margin-top: 4px;">▲ +2.45% (24h)</div>
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn-glass btn-buy" onclick="buyAsset()">Buy BTC</button>
+                            <button class="btn-glass btn-sell" onclick="sellAsset()">Sell BTC</button>
+                        </div>
+                    </div>
+                    
+                    <div class="glass" style="height: 400px; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                        <div style="text-align: center; opacity: 0.7;">
+                            <div style="font-size: 64px; margin-bottom: 16px;">📈</div>
+                            <div style="font-size: 16px;">Candlestick Chart Area</div>
+                            <div style="font-size: 12px; margin-top: 8px;">Live data will appear here</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px;">
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #4a9eff;">$1.2T</div>
+                        <div class="stat-label">Market Cap</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #00ff88;">$890M</div>
+                        <div class="stat-label">Open Interest</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #ffaa00;">0.01%</div>
+                        <div class="stat-label">Funding Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #9d4edd;">45.2K</div>
+                        <div class="stat-label">24h Trades</div>
+                    </div>
+                </div>
+            </main>
+            
+            <!-- Right Panel - Order Book -->
+            <aside class="glass-frosted" style="padding: 24px;">
+                <h3 style="margin: 0 0 20px; font-size: 18px; font-weight: 800;">Order Book</h3>
+                
+                <div style="display: flex; justify-content: space-between; font-size: 10px; opacity: 0.8; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 1px;">
+                    <span>Price (USDT)</span>
+                    <span>Amount (BTC)</span>
+                </div>
+                
+                <div class="order-item sell">
+                    <span>67,250.00</span>
+                    <span>2.5</span>
+                </div>
+                <div class="order-item sell">
+                    <span>67,248.50</span>
+                    <span>1.8</span>
+                </div>
+                <div class="order-item sell">
+                    <span>67,245.00</span>
+                    <span>3.2</span>
+                </div>
+                <div class="order-item sell">
+                    <span>67,240.00</span>
+                    <span>0.9</span>
+                </div>
+                
+                <div style="border-top: 1px solid rgba(255, 255, 255, 0.3); margin: 20px 0; padding: 16px 0; text-align: center;">
+                    <span class="price-display" style="font-size: 22px;">$67,234.50</span>
+                </div>
+                
+                <div class="order-item buy">
+                    <span>67,230.00</span>
+                    <span>1.5</span>
+                </div>
+                <div class="order-item buy">
+                    <span>67,225.00</span>
+                    <span>4.2</span>
+                </div>
+                <div class="order-item buy">
+                    <span>67,220.00</span>
+                    <span>2.8</span>
+                </div>
+                <div class="order-item buy">
+                    <span>67,215.00</span>
+                    <span>3.6</span>
+                </div>
+                
+                <div style="margin-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.3); padding-top: 20px;">
+                    <h3 style="margin: 0 0 16px; font-size: 18px; font-weight: 800;">Recent Trades</h3>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: flex; justify-content: space-between; color: #00ff88;">
+                            <span>14:32:05</span>
+                            <span>67,230.00</span>
+                            <span>0.5 BTC</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; color: #ff4444;">
+                            <span>14:31:48</span>
+                            <span>67,225.00</span>
+                            <span>1.2 BTC</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; color: #00ff88;">
+                            <span>14:30:22</span>
+                            <span>67,240.00</span>
+                            <span>0.8 BTC</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Chatway Widget -->
+    <script id="chatway" async="true" src="https://cdn.chatway.app/widget.js?id=EDicIiTepGoB"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGAmwvg6QfEAIth-XQYblRtZ47WSUMppQ",
+            authDomain: "optimal-trading.firebaseapp.com",
+            projectId: "optimal-trading",
+            storageBucket: "optimal-trading.firebasestorage.app",
+            messagingSenderId: "180919975679",
+            appId: "1:180919975679:web:31a8bf720f08df6d7cd6ca",
+            measurementId: "G-4J31RFJK03"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            t.style.borderColor = type === 'success' ? '#00ff88' : '#ff4444';
+            t.style.color = type === 'success' ? '#00ff88' : '#ff4444';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        function buyAsset() {
+            const amount = prompt('Enter amount to buy:');
+            if (amount && parseFloat(amount) > 0) showToast('Buy order placed: ' + amount + ' BTC');
+        }
+
+        function sellAsset() {
+            const amount = prompt('Enter amount to sell:');
+            if (amount && parseFloat(amount) > 0) showToast('Sell order placed: ' + amount + ' BTC');
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            });
+        }
+
+        function updateUI(userData) {
+            document.getElementById('navUserName').textContent = userData.name || userData.email;
+            document.getElementById('navUserBalance').textContent = '$' + (userData.balance || 0).toFixed(2);
+            document.getElementById('userBalance').textContent = '$' + (userData.balance || 0).toFixed(2);
+            document.getElementById('infoName').textContent = userData.name || '-';
+            document.getElementById('infoEmail').textContent = userData.email || '-';
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.collection('users').doc(user.uid).get().then(doc => {
+                    if (doc.exists) {
+                        updateUI(doc.data());
+                    } else {
+                        const defaultData = {
+                            name: user.displayName || 'User',
+                            email: user.email,
+                            balance: 0,
+                            accountType: 'user',
+                            isAdmin: false,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+                        db.collection('users').doc(user.uid).set(defaultData).then(() => {
+                            updateUI(defaultData);
+                        });
+                    }
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>
