@@ -8,29 +8,24 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    
     <style>
         :root {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-bg-hover: rgba(255, 255, 255, 0.2);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --glass-border-strong: rgba(255, 255, 255, 0.4);
+            --bg-base: #1a1a2e;
+            --bg-light: #16213e;
+            --bg-accent: #0f3460;
+            --glass-white: rgba(255, 255, 255, 0.15);
+            --glass-white-strong: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --glass-shadow: rgba(255, 255, 255, 0.1);
             --text-primary: #ffffff;
-            --text-secondary: #e2e8f0;
-            --text-muted: #94a3b8;
-            --accent-blue: #3b82f6;
-            --accent-purple: #8b5cf6;
-            --accent-cyan: #06b6d4;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-gold: #f59e0b;
-            --accent-pink: #ec4899;
+            --text-secondary: #e0e0e0;
+            --accent-blue: #4a9eff;
+            --accent-purple: #9d4edd;
+            --accent-cyan: #00d4ff;
+            --accent-green: #00ff88;
+            --accent-red: #ff4444;
+            --accent-gold: #ffaa00;
+            --accent-pink: #ff6b9d;
         }
 
         * {
@@ -41,64 +36,56 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #0f172a;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
         }
 
-        /* ===== BACKGROUND EFFECTS ===== */
-        .optimal-bg {
-            position: fixed;
-            inset: 0;
-            background: 
-                radial-gradient(ellipse at 20% 20%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.25) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.2) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 30%, rgba(236, 72, 153, 0.15) 0%, transparent 40%);
-            z-index: 0;
-            animation: bgPulse 8s ease-in-out infinite;
-        }
-
-        @keyframes bgPulse {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
-        }
-
-        .glow-orb {
+        /* ===== BRIGHT BACKGROUND ORBS ===== */
+        .bg-orb {
             position: fixed;
             border-radius: 50%;
             filter: blur(80px);
             pointer-events: none;
             z-index: 1;
-            animation: orbFloat 6s ease-in-out infinite;
+            animation: orbFloat 8s ease-in-out infinite;
         }
 
-        .orb-1 {
+        .orb-blue {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(74, 158, 255, 0.5), transparent 70%);
+            top: -150px;
+            left: -150px;
+        }
+
+        .orb-purple {
             width: 400px;
             height: 400px;
-            background: rgba(59, 130, 246, 0.4);
-            top: -100px;
-            left: -100px;
-        }
-
-        .orb-2 {
-            width: 350px;
-            height: 350px;
-            background: rgba(139, 92, 246, 0.35);
-            bottom: -50px;
-            right: -50px;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.45), transparent 70%);
+            bottom: -100px;
+            right: -100px;
             animation-delay: -2s;
         }
 
-        .orb-3 {
+        .orb-cyan {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.4), transparent 70%);
+            top: 40%;
+            left: 60%;
+            animation-delay: -4s;
+        }
+
+        .orb-pink {
             width: 300px;
             height: 300px;
-            background: rgba(6, 182, 212, 0.3);
-            top: 50%;
-            left: 50%;
-            animation-delay: -4s;
+            background: radial-gradient(circle, rgba(255, 107, 157, 0.35), transparent 70%);
+            top: 20%;
+            right: 20%;
+            animation-delay: -6s;
         }
 
         @keyframes orbFloat {
@@ -107,35 +94,58 @@
             66% { transform: translate(-20px, 20px) scale(0.9); }
         }
 
-        /* ===== GLASSMORPHISM COMPONENTS ===== */
+        /* ===== SPARKLE PARTICLES ===== */
+        .sparkle-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #4a9eff;
+            animation: sparkle 3s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        /* ===== SHINING GLASS ===== */
         .glass {
-            background: var(--glass-bg);
+            background: var(--glass-white);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
+            border-radius: 24px;
             box-shadow: 
                 0 8px 32px rgba(0, 0, 0, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                0 0 60px rgba(255, 255, 255, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.1);
             position: relative;
             z-index: 10;
-            transition: all 0.3s ease;
-        }
-
-        .glass:hover {
-            background: var(--glass-bg-hover);
-            border-color: var(--glass-border-strong);
-            box-shadow: 
-                0 12px 48px rgba(0, 0, 0, 0.3),
-                0 0 60px rgba(255, 255, 255, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        }
-
-        .glass-shine {
-            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
         }
 
+        .glass:hover {
+            background: var(--glass-white-strong);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                0 12px 48px rgba(0, 0, 0, 0.3),
+                0 0 80px rgba(255, 255, 255, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            transform: translateY(-4px);
+        }
+
+        /* Shine sweep effect */
         .glass-shine::before {
             content: '';
             position: absolute;
@@ -146,11 +156,12 @@
             background: linear-gradient(
                 45deg,
                 transparent 30%,
-                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0.2) 50%,
                 transparent 70%
             );
             animation: shineSweep 3s ease-in-out infinite;
             pointer-events: none;
+            z-index: 1;
         }
 
         @keyframes shineSweep {
@@ -165,7 +176,7 @@
             left: 0;
             right: 0;
             z-index: 100;
-            padding: 16px 24px;
+            padding: 20px 30px;
         }
 
         .navbar-content {
@@ -177,76 +188,39 @@
         }
 
         .navbar-logo {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 900;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            background: linear-gradient(135deg, #ffffff, #a8d8ff, #ffffff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: textShimmer 3s linear infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
         }
 
-        .navbar-links {
+        @keyframes textShimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .navbar-buttons {
             display: flex;
             gap: 12px;
             align-items: center;
         }
 
-        /* ===== HOME PAGE ===== */
-        .home-container {
-            position: relative;
-            z-index: 10;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 100px 20px 40px;
-        }
-
-        .hero-section {
-            text-align: center;
-            max-width: 900px;
-            margin-bottom: 60px;
-        }
-
-        .hero-title {
-            font-size: 64px;
-            font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #ffffff 0%, #93c5fd 50%, #c4b5fd 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: textGlow 3s ease-in-out infinite;
-        }
-
-        @keyframes textGlow {
-            0%, 100% { filter: drop-shadow(0 0 20px rgba(147, 197, 253, 0.5)); }
-            50% { filter: drop-shadow(0 0 40px rgba(147, 197, 253, 0.8)); }
-        }
-
-        .hero-subtitle {
-            font-size: 20px;
-            color: var(--text-secondary);
-            margin-bottom: 40px;
-            line-height: 1.6;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
         .btn {
-            padding: 14px 32px;
+            padding: 12px 28px;
             border-radius: 12px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 1px solid transparent;
-            font-size: 15px;
+            font-size: 14px;
             letter-spacing: 0.5px;
             text-transform: uppercase;
             position: relative;
@@ -258,275 +232,229 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            background: linear-gradient(135deg, #4a9eff, #9d4edd);
             color: white;
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
+            box-shadow: 0 4px 20px rgba(74, 158, 255, 0.5);
         }
 
         .btn-primary:hover {
-            box-shadow: 0 6px 30px rgba(59, 130, 246, 0.7);
+            box-shadow: 
+                0 6px 30px rgba(74, 158, 255, 0.7),
+                0 0 60px rgba(157, 78, 221, 0.4);
             transform: translateY(-2px);
         }
 
         .btn-outline {
-            background: var(--glass-bg);
+            background: var(--glass-white);
             backdrop-filter: blur(10px);
             border-color: var(--glass-border);
             color: var(--text-primary);
         }
 
         .btn-outline:hover {
-            background: var(--glass-bg-hover);
-            border-color: var(--glass-border-strong);
+            background: var(--glass-white-strong);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
+        }
+
+        /* ===== HERO SECTION ===== */
+        .home-container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 120px 20px 40px;
+        }
+
+        .hero-section {
+            text-align: center;
+            max-width: 1000px;
+            margin-bottom: 80px;
+        }
+
+        .hero-title {
+            font-size: 72px;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #ffffff 0%, #a8d8ff 30%, #c4b5fd 60%, #ffffff 100%);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: textShimmer 4s linear infinite;
+            filter: drop-shadow(0 0 30px rgba(168, 216, 255, 0.6));
+        }
+
+        .hero-subtitle {
+            font-size: 22px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.6;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #10b981, #06b6d4);
+            background: linear-gradient(135deg, #00ff88, #00d4ff);
             color: white;
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.5);
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.5);
         }
 
         .btn-success:hover {
-            box-shadow: 0 6px 30px rgba(16, 185, 129, 0.7);
+            box-shadow: 
+                0 6px 30px rgba(0, 255, 136, 0.7),
+                0 0 60px rgba(0, 212, 255, 0.4);
             transform: translateY(-2px);
         }
 
-        /* ===== FEATURES SECTION ===== */
+        /* ===== FEATURES ===== */
         .features-section {
             max-width: 1200px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 24px;
             padding: 20px;
+            width: 100%;
         }
 
         .feature-card {
-            padding: 32px;
+            padding: 36px;
             text-align: center;
         }
 
         .feature-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
+            font-size: 56px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
         }
 
         .feature-title {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             margin-bottom: 12px;
-        }
-
-        .feature-description {
-            color: var(--text-muted);
-            line-height: 1.6;
-        }
-
-        /* ===== STATS SECTION ===== */
-        .stats-section {
-            max-width: 1200px;
-            margin: 60px auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 24px;
-            padding: 20px;
-        }
-
-        .stat-card {
-            padding: 24px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 36px;
-            font-weight: 900;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #93c5fd, #c4b5fd);
+            background: linear-gradient(135deg, #ffffff, #e0e0e0);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
 
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        /* ===== STATS ===== */
+        .stats-section {
+            max-width: 1200px;
+            margin: 60px auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .stat-card {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 42px;
+            font-weight: 900;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #a8d8ff, #c4b5fd, #a8d8ff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: textShimmer 3s linear infinite;
+        }
+
         .stat-label {
             font-size: 13px;
-            color: var(--text-muted);
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 2px;
         }
 
-        /* ===== AUTH MODAL ===== */
-        .auth-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .auth-overlay.active {
-            display: flex;
-        }
-
-        .auth-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(30px) saturate(180%);
-            -webkit-backdrop-filter: blur(30px) saturate(180%);
-            border: 1px solid var(--glass-border-strong);
-            border-radius: 24px;
-            padding: 40px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: modalIn 0.3s ease;
-        }
-
-        @keyframes modalIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 14px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--glass-border);
-            color: var(--text-primary);
-            font-size: 14px;
-            transition: all 0.2s ease;
-            margin-bottom: 16px;
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-
-        .input-field::placeholder {
-            color: var(--text-muted);
-        }
-
-        /* ===== DASHBOARD ===== */
-        .dashboard {
-            display: none;
-            position: relative;
-            z-index: 10;
-            min-height: 100vh;
-        }
-
-        .dashboard.active {
-            display: block;
-        }
-
-        .dashboard-header {
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 20px;
-        }
-
-        .dashboard-layout {
-            display: grid;
-            grid-template-columns: 260px 1fr 340px;
-            gap: 20px;
-            padding: 0 20px 20px;
-            min-height: calc(100vh - 120px);
-        }
-
-        .balance-display {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--accent-green);
-            text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            border-radius: 8px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            z-index: 2000;
-            animation: slideIn 0.3s ease;
-            display: none;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @media (max-width: 1400px) {
-            .dashboard-layout {
-                grid-template-columns: 220px 1fr;
-            }
-            .dashboard-layout > aside:last-child {
-                grid-column: span 2;
-            }
-        }
-
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .hero-title {
-                font-size: 40px;
+                font-size: 42px;
             }
             .hero-subtitle {
-                font-size: 16px;
+                font-size: 18px;
             }
-            .dashboard-layout {
+            .navbar {
+                padding: 14px 16px;
+            }
+            .navbar-logo {
+                font-size: 22px;
+            }
+            .btn {
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+            .features-section {
                 grid-template-columns: 1fr;
-                padding: 0 12px 12px;
             }
-            .dashboard-layout > aside:last-child {
-                grid-column: span 1;
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
             }
-            .navbar-links {
-                gap: 8px;
+            .stat-value {
+                font-size: 32px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Background -->
-    <div class="optimal-bg"></div>
-    <div class="glow-orb orb-1"></div>
-    <div class="glow-orb orb-2"></div>
-    <div class="glow-orb orb-3"></div>
+    <!-- Bright Background Orbs -->
+    <div class="bg-orb orb-blue"></div>
+    <div class="bg-orb orb-purple"></div>
+    <div class="bg-orb orb-cyan"></div>
+    <div class="bg-orb orb-pink"></div>
     
-    <!-- Toast -->
-    <div class="toast" id="toast"></div>
+    <!-- Sparkle Particles -->
+    <div class="sparkle-container">
+        <div class="sparkle" style="top: 10%; left: 20%; animation-delay: 0s;"></div>
+        <div class="sparkle" style="top: 30%; left: 80%; animation-delay: 0.5s;"></div>
+        <div class="sparkle" style="top: 50%; left: 40%; animation-delay: 1s;"></div>
+        <div class="sparkle" style="top: 70%; left: 10%; animation-delay: 1.5s;"></div>
+        <div class="sparkle" style="top: 20%; left: 60%; animation-delay: 2s;"></div>
+        <div class="sparkle" style="top: 80%; left: 70%; animation-delay: 2.5s;"></div>
+        <div class="sparkle" style="top: 40%; left: 90%; animation-delay: 3s;"></div>
+        <div class="sparkle" style="top: 60%; left: 30%; animation-delay: 3.5s;"></div>
+        <div class="sparkle" style="top: 15%; left: 45%; animation-delay: 4s;"></div>
+        <div class="sparkle" style="top: 85%; left: 50%; animation-delay: 4.5s;"></div>
+    </div>
     
     <!-- Navbar -->
-    <nav class="navbar" id="navbar">
+    <nav class="navbar">
         <div class="navbar-content">
-            <div class="navbar-logo">
-                <span>⚡ OPTIMAL</span>
-            </div>
-            <div class="navbar-links" id="navbarLinks">
-                <button class="btn btn-outline" onclick="openAuth('login')">Login</button>
-                <button class="btn btn-primary" onclick="openAuth('signup')">Sign Up</button>
-            </div>
-            <div class="navbar-links" id="navbarUser" style="display: none;">
-                <span id="navUserName" style="font-weight: 600;">User</span>
-                <button class="btn btn-outline" onclick="goToDashboard()">Dashboard</button>
-                <button class="btn btn-danger" onclick="logout()" style="background: var(--accent-red); color: white;">Logout</button>
+            <div class="navbar-logo">⚡ OPTIMAL</div>
+            <div class="navbar-buttons">
+                <button class="btn btn-outline">Login</button>
+                <button class="btn btn-primary">Sign Up</button>
             </div>
         </div>
     </nav>
     
     <!-- Home Page -->
-    <div class="home-container" id="homePage">
+    <div class="home-container">
         <div class="hero-section">
             <h1 class="hero-title">Trade Smarter.<br>Trade Optimal.</h1>
             <p class="hero-subtitle">
@@ -534,8 +462,8 @@
                 secure transactions, and professional-grade tools.
             </p>
             <div class="hero-buttons">
-                <button class="btn btn-primary" onclick="openAuth('signup')">Get Started</button>
-                <button class="btn btn-outline" onclick="openAuth('login')">Login</button>
+                <button class="btn btn-success">🚀 Get Started</button>
+                <button class="btn btn-outline">📊 View Markets</button>
             </div>
         </div>
         
@@ -544,17 +472,17 @@
             <div class="glass glass-shine feature-card">
                 <div class="feature-icon">📊</div>
                 <div class="feature-title">Real-Time Analytics</div>
-                <div class="feature-description">Live market data and advanced charting tools for informed decisions.</div>
+                <div class="feature-description">Live market data and advanced charting tools for informed trading decisions.</div>
             </div>
             <div class="glass glass-shine feature-card">
                 <div class="feature-icon">🔒</div>
                 <div class="feature-title">Secure Trading</div>
-                <div class="feature-description">Bank-grade security with Firebase authentication and encryption.</div>
+                <div class="feature-description">Bank-grade security with Firebase authentication and encrypted transactions.</div>
             </div>
             <div class="glass glass-shine feature-card">
                 <div class="feature-icon">⚡</div>
                 <div class="feature-title">Lightning Fast</div>
-                <div class="feature-description">Execute trades in milliseconds with our optimized platform.</div>
+                <div class="feature-description">Execute trades in milliseconds with our optimized trading engine.</div>
             </div>
         </div>
         
@@ -578,282 +506,8 @@
             </div>
         </div>
     </div>
-    
-    <!-- Auth Modal -->
-    <div class="auth-overlay" id="authOverlay">
-        <div class="auth-card">
-            <div style="text-align: center; margin-bottom: 30px;">
-                <div style="font-size: 28px; font-weight: 900;">⚡ OPTIMAL</div>
-                <div style="font-size: 12px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px;" id="authTitle">Login</div>
-            </div>
-            
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <button class="btn btn-primary" id="loginTab" onclick="switchAuth('login')" style="flex: 1;">Login</button>
-                <button class="btn btn-outline" id="signupTab" onclick="switchAuth('signup')" style="flex: 1;">Sign Up</button>
-            </div>
-            
-            <!-- Login Form -->
-            <form id="loginForm">
-                <input type="email" id="loginEmail" class="input-field" placeholder="Email" required>
-                <input type="password" id="loginPassword" class="input-field" placeholder="Password" required>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
-            </form>
-            
-            <!-- Signup Form -->
-            <form id="signupForm" style="display: none;">
-                <input type="text" id="signupName" class="input-field" placeholder="Full Name" required>
-                <input type="email" id="signupEmail" class="input-field" placeholder="Email" required>
-                <input type="password" id="signupPassword" class="input-field" placeholder="Password (min 6 characters)" required minlength="6">
-                <button type="submit" class="btn btn-success" style="width: 100%;">Sign Up</button>
-            </form>
-            
-            <div style="margin-top: 16px; text-align: center;">
-                <button onclick="closeAuth()" style="background: none; border: none; color: var(--text-muted); cursor: pointer;">✕ Close</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Dashboard -->
-    <div class="dashboard" id="dashboard">
-        <div class="dashboard-header glass">
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="font-size: 24px; font-weight: 900;">⚡ OPTIMAL</div>
-                <div style="font-size: 12px; color: var(--text-muted);">User Dashboard</div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="text-align: right;">
-                    <div id="dashboardUserName" style="font-weight: 700; font-size: 16px;">User</div>
-                    <div id="dashboardUserEmail" style="font-size: 12px; color: var(--text-muted);">user@email.com</div>
-                </div>
-                <button class="btn btn-outline" onclick="goHome()">🏠 Home</button>
-                <button class="btn btn-danger" onclick="logout()">Logout</button>
-            </div>
-        </div>
-        
-        <div class="dashboard-layout">
-            <aside class="glass" style="padding: 20px;">
-                <div style="margin-bottom: 20px;">
-                    <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;">Balance</div>
-                    <div class="balance-display" id="userBalance">$0.00</div>
-                </div>
-                
-                <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin: 20px 0 10px;">Markets</div>
-                
-                <div style="padding: 12px; border-radius: 8px; background: rgba(59, 130, 246, 0.2); border: 1px solid var(--accent-blue); margin-bottom: 8px;">
-                    <span>BTC/USDT</span>
-                    <span style="color: var(--accent-green); margin-left: 10px;">+2.45%</span>
-                </div>
-                <div style="padding: 12px; border-radius: 8px; margin-bottom: 8px;">
-                    <span>ETH/USDT</span>
-                    <span style="color: var(--accent-green); margin-left: 10px;">+1.87%</span>
-                </div>
-                <div style="padding: 12px; border-radius: 8px; margin-bottom: 8px;">
-                    <span>SOL/USDT</span>
-                    <span style="color: var(--accent-red); margin-left: 10px;">-0.92%</span>
-                </div>
-            </aside>
-            
-            <main>
-                <div class="glass" style="padding: 24px; margin-bottom: 20px;">
-                    <h2 style="margin-bottom: 20px;">Welcome, <span id="welcomeName">User</span>!</h2>
-                    <p style="color: var(--text-muted);">Your account balance is <strong style="color: var(--accent-green);" id="balanceText">$0.00</strong></p>
-                    <p style="color: var(--text-muted); margin-top: 10px;">Start trading by adding funds to your account.</p>
-                </div>
-                
-                <div class="glass" style="padding: 24px;">
-                    <h3 style="margin-bottom: 20px;">Quick Actions</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-                        <button class="btn btn-primary" onclick="showToast('Deposit feature coming soon!')">Deposit Funds</button>
-                        <button class="btn btn-success" onclick="showToast('Trading feature coming soon!')">Start Trading</button>
-                        <button class="btn btn-outline" onclick="showToast('History feature coming soon!')">View History</button>
-                    </div>
-                </div>
-            </main>
-            
-            <aside class="glass" style="padding: 24px;">
-                <h3 style="margin-bottom: 20px;">Account Info</h3>
-                <div style="margin-bottom: 20px;">
-                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Name</div>
-                    <div id="infoName">-</div>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Email</div>
-                    <div id="infoEmail">-</div>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Account Type</div>
-                    <div id="infoType">User</div>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Balance</div>
-                    <div id="infoBalance" class="balance-display" style="font-size: 24px;">$0.00</div>
-                </div>
-                <div>
-                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Member Since</div>
-                    <div id="infoMemberSince">-</div>
-                </div>
-            </aside>
-        </div>
-    </div>
 
     <!-- Chatway Widget -->
     <script id="chatway" async="true" src="https://cdn.chatway.app/widget.js?id=EDicIiTepGoB"></script>
-
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCGAmwvg6QfEAIth-XQYblRtZ47WSUMppQ",
-            authDomain: "optimal-trading.firebaseapp.com",
-            projectId: "optimal-trading",
-            storageBucket: "optimal-trading.firebasestorage.app",
-            messagingSenderId: "180919975679",
-            appId: "1:180919975679:web:31a8bf720f08df6d7cd6ca",
-            measurementId: "G-4J31RFJK03"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        let currentUser = null;
-
-        // Toast
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.style.display = 'block';
-            toast.style.borderColor = type === 'success' ? 'var(--accent-green)' : 'var(--accent-red)';
-            toast.style.color = type === 'success' ? 'var(--accent-green)' : 'var(--accent-red)';
-            setTimeout(() => { toast.style.display = 'none'; }, 3000);
-        }
-
-        // Auth Modal
-        function openAuth(mode) {
-            document.getElementById('authOverlay').classList.add('active');
-            switchAuth(mode);
-        }
-
-        function closeAuth() {
-            document.getElementById('authOverlay').classList.remove('active');
-        }
-
-        function switchAuth(mode) {
-            if (mode === 'login') {
-                document.getElementById('loginForm').style.display = 'block';
-                document.getElementById('signupForm').style.display = 'none';
-                document.getElementById('loginTab').className = 'btn btn-primary';
-                document.getElementById('signupTab').className = 'btn btn-outline';
-                document.getElementById('authTitle').textContent = 'Login';
-            } else {
-                document.getElementById('loginForm').style.display = 'none';
-                document.getElementById('signupForm').style.display = 'block';
-                document.getElementById('loginTab').className = 'btn btn-outline';
-                document.getElementById('signupTab').className = 'btn btn-primary';
-                document.getElementById('authTitle').textContent = 'Sign Up';
-            }
-        }
-
-        // Login
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            auth.signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    showToast('Login successful!');
-                    closeAuth();
-                })
-                .catch((error) => {
-                    showToast(error.message, 'error');
-                });
-        });
-
-        // Signup
-        document.getElementById('signupForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('signupName').value;
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    return db.collection('users').doc(user.uid).set({
-                        name: name,
-                        email: email,
-                        balance: 0,
-                        accountType: 'user',
-                        isAdmin: false,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                })
-                .then(() => {
-                    showToast('Account created successfully!');
-                    closeAuth();
-                })
-                .catch((error) => {
-                    showToast(error.message, 'error');
-                });
-        });
-
-        // Navigation
-        function goToDashboard() {
-            document.getElementById('homePage').style.display = 'none';
-            document.getElementById('dashboard').classList.add('active');
-        }
-
-        function goHome() {
-            document.getElementById('dashboard').classList.remove('active');
-            document.getElementById('homePage').style.display = 'flex';
-        }
-
-        function logout() {
-            auth.signOut().then(() => {
-                currentUser = null;
-                goHome();
-                showToast('Logged out successfully');
-            });
-        }
-
-        // Update Dashboard
-        function updateDashboard(userData) {
-            document.getElementById('dashboardUserName').textContent = userData.name || 'User';
-            document.getElementById('dashboardUserEmail').textContent = userData.email || '';
-            document.getElementById('userBalance').textContent = '$' + (userData.balance || 0).toFixed(2);
-            document.getElementById('welcomeName').textContent = userData.name || 'User';
-            document.getElementById('balanceText').textContent = '$' + (userData.balance || 0).toFixed(2);
-            document.getElementById('infoName').textContent = userData.name || '-';
-            document.getElementById('infoEmail').textContent = userData.email || '-';
-            document.getElementById('infoType').textContent = userData.isAdmin ? 'Admin' : 'User';
-            document.getElementById('infoBalance').textContent = '$' + (userData.balance || 0).toFixed(2);
-        }
-
-        // Auth State
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('navbarLinks').style.display = 'none';
-                document.getElementById('navbarUser').style.display = 'flex';
-                document.getElementById('navUserName').textContent = user.email;
-                
-                db.collection('users').doc(user.uid).get().then((doc) => {
-                    if (doc.exists) {
-                        updateDashboard(doc.data());
-                        goToDashboard();
-                    }
-                });
-            } else {
-                currentUser = null;
-                document.getElementById('navbarLinks').style.display = 'flex';
-                document.getElementById('navbarUser').style.display = 'none';
-                goHome();
-            }
-        });
-
-        // Initialize
-        switchAuth('login');
-    </script>
 </body>
 </html>
