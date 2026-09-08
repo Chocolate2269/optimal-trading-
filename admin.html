@@ -1,1 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimal Trading - Admin Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --bg-base: #1a1a2e;
+            --bg-light: #16213e;
+            --bg-accent: #0f3460;
+            --glass-white: rgba(255, 255, 255, 0.15);
+            --glass-white-strong: rgba(255, 255, 255, 0.28);
+            --glass-border: rgba(255, 255, 255, 0.35);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --accent-blue: #4a9eff;
+            --accent-purple: #9d4edd;
+            --accent-cyan: #00d4ff;
+            --accent-green: #00ff88;
+            --accent-red: #ff4444;
+            --accent-gold: #ffaa00;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(70px);
+            pointer-events: none;
+            z-index: 1;
+            animation: orbFloat 8s ease-in-out infinite;
+        }
+
+        .orb-blue {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(74, 158, 255, 0.5), transparent 70%);
+            top: -150px;
+            left: -150px;
+        }
+
+        .orb-purple {
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.45), transparent 70%);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -2s;
+        }
+
+        .orb-cyan {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.4), transparent 70%);
+            top: 40%;
+            left: 60%;
+            animation-delay: -4s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        .glass {
+            background: var(--glass-white);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            position: relative;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .glass:hover {
+            background: var(--glass-white-strong);
+            border-color: rgba(255, 255, 255, 0.55);
+        }
+
+        .glass-shine {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-shine::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+            animation: shineSweep 3s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes shineSweep {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .text-shine {
+            background: linear-gradient(135deg, #ffffff 0%, #ffd700 50%, #ffffff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: textShimmer 3s linear infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+        }
+
+        @keyframes textShimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .btn-glass {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .btn-glass:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary {
+            background: rgba(74, 158, 255, 0.35);
+            border-color: rgba(74, 158, 255, 0.6);
+        }
+
+        .btn-success {
+            background: rgba(0, 255, 136, 0.35);
+            border-color: rgba(0, 255, 136, 0.6);
+        }
+
+        .btn-danger {
+            background: rgba(255, 68, 68, 0.35);
+            border-color: rgba(255, 68, 68, 0.6);
+        }
+
+        .btn-gold {
+            background: rgba(255, 170, 0, 0.35);
+            border-color: rgba(255, 170, 0, 0.6);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(26, 26, 46, 0.6);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .navbar-logo {
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .admin-container {
+            position: relative;
+            z-index: 10;
+            padding: 90px 20px 20px;
+            min-height: 100vh;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stat-card {
+            padding: 24px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .admin-table-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+            overflow-x: auto;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th, .admin-table td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-table th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .admin-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-admin {
+            background: rgba(255, 170, 0, 0.3);
+            color: #ffd700;
+            border: 1px solid rgba(255, 170, 0, 0.5);
+        }
+
+        .badge-user {
+            background: rgba(74, 158, 255, 0.3);
+            color: #a8d8ff;
+            border: 1px solid rgba(74, 158, 255, 0.5);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: rgba(30, 30, 50, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 2000;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 12px 16px;
+            }
+            .admin-container {
+                padding: 120px 12px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Orbs -->
+    <div class="bg-orb orb-blue"></div>
+    <div class="bg-orb orb-purple"></div>
+    <div class="bg-orb orb-cyan"></div>
+    
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+    
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-logo text-shine">👑 OPTIMAL ADMIN</div>
+        <div class="navbar-links">
+            <button class="btn-glass btn-outline" onclick="window.location.href='index.html'">🏠 Home</button>
+            <button class="btn-glass btn-outline" onclick="window.location.href='dashboard.html'">📊 Dashboard</button>
+            <button class="btn-glass btn-danger" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+    
+    <!-- Admin Panel -->
+    <div class="admin-container">
+        <!-- Stats -->
+        <div class="admin-stats">
+            <div class="glass glass-shine stat-card">
+                <div class="stat-value" id="totalUsers" style="color: #4a9eff;">0</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="glass glass-shine stat-card">
+                <div class="stat-value" id="totalBalance" style="color: #00ff88;">$0.00</div>
+                <div class="stat-label">Total Balance</div>
+            </div>
+            <div class="glass glass-shine stat-card">
+                <div class="stat-value" id="totalAdmins" style="color: #ffaa00;">0</div>
+                <div class="stat-label">Admins</div>
+            </div>
+            <div class="glass glass-shine stat-card">
+                <div class="stat-value" id="totalTrades" style="color: #9d4edd;">0</div>
+                <div class="stat-label">Total Trades</div>
+            </div>
+        </div>
+        
+        <!-- Users Table -->
+        <div class="glass admin-table-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-size: 20px; font-weight: 800;">All Users</h2>
+                <button class="btn-glass btn-primary" onclick="refreshUsers()">🔄 Refresh</button>
+            </div>
+            
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Balance</th>
+                        <th>Type</th>
+                        <th>Member Since</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Loading users...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Chatway Widget -->
+    <script id="chatway" async="true" src="https://cdn.chatway.app/widget.js?id=EDicIiTepGoB"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGAmwvg6QfEAIth-XQYblRtZ47WSUMppQ",
+            authDomain: "optimal-trading.firebaseapp.com",
+            projectId: "optimal-trading",
+            storageBucket: "optimal-trading.firebasestorage.app",
+            messagingSenderId: "180919975679",
+            appId: "1:180919975679:web:31a8bf720f08df6d7cd6ca",
+            measurementId: "G-4J31RFJK03"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Admin credentials for auto-login
+        const ADMIN_EMAIL = "admin@optimaltrading.com";
+        const ADMIN_PASSWORD = "admin123456";
+
+        let isAdmin = false;
+
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            t.style.borderColor = type === 'success' ? '#00ff88' : '#ff4444';
+            t.style.color = type === 'success' ? '#00ff88' : '#ff4444';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        // Auto-login as admin
+        function autoLoginAdmin() {
+            auth.signInWithEmailAndPassword(ADMIN_EMAIL, ADMIN_PASSWORD)
+                .then((cred) => {
+                    return db.collection('users').doc(cred.user.uid).get().then((doc) => {
+                        if (!doc.exists) {
+                            // Create admin user if doesn't exist
+                            return db.collection('users').doc(cred.user.uid).set({
+                                name: 'Admin',
+                                email: ADMIN_EMAIL,
+                                balance: 0,
+                                accountType: 'admin',
+                                isAdmin: true,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        } else if (!doc.data().isAdmin) {
+                            // Update to admin if not already
+                            return db.collection('users').doc(cred.user.uid).update({
+                                isAdmin: true,
+                                accountType: 'admin'
+                            });
+                        }
+                    });
+                })
+                .then(() => {
+                    isAdmin = true;
+                    showToast('Admin logged in!');
+                    loadAdminData();
+                })
+                .catch((err) => {
+                    // If admin account doesn't exist, create it
+                    if (err.code === 'auth/user-not-found') {
+                        auth.createUserWithEmailAndPassword(ADMIN_EMAIL, ADMIN_PASSWORD)
+                            .then((cred) => {
+                                return db.collection('users').doc(cred.user.uid).set({
+                                    name: 'Admin',
+                                    email: ADMIN_EMAIL,
+                                    balance: 0,
+                                    accountType: 'admin',
+                                    isAdmin: true,
+                                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                                });
+                            })
+                            .then(() => {
+                                isAdmin = true;
+                                showToast('Admin account created & logged in!');
+                                loadAdminData();
+                            })
+                            .catch(err => showToast(err.message, 'error'));
+                    } else {
+                        showToast(err.message, 'error');
+                    }
+                });
+        }
+
+        function loadAdminData() {
+            if (!isAdmin) return;
+            
+            let totalUsers = 0;
+            let totalBalance = 0;
+            let totalAdmins = 0;
+            
+            db.collection('users').get().then((snapshot) => {
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = '';
+                
+                snapshot.forEach((doc) => {
+                    const u = doc.data();
+                    const userId = doc.id;
+                    
+                    totalUsers++;
+                    totalBalance += (u.balance || 0);
+                    if (u.isAdmin) totalAdmins++;
+                    
+                    const createdAt = u.createdAt ? u.createdAt.toDate().toLocaleDateString() : '-';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${u.name || '-'}</strong></td>
+                        <td>${u.email || '-'}</td>
+                        <td style="color: #00ff88; font-weight: 600;">$${(u.balance || 0).toFixed(2)}</td>
+                        <td><span class="badge ${u.isAdmin ? 'badge-admin' : 'badge-user'}">${u.isAdmin ? 'Admin' : 'User'}</span></td>
+                        <td>${createdAt}</td>
+                        <td>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <button class="btn-glass btn-success" style="padding: 6px 10px; font-size: 11px;" onclick="addMoney('${userId}', '${u.name}')">+$</button>
+                                <button class="btn-glass btn-outline" style="padding: 6px 10px; font-size: 11px;" onclick="viewUser('${userId}')">View</button>
+                                ${!u.isAdmin ? `<button class="btn-glass btn-gold" style="padding: 6px 10px; font-size: 11px;" onclick="makeAdmin('${userId}', '${u.name}')">Admin</button>` : ''}
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                document.getElementById('totalUsers').textContent = totalUsers;
+                document.getElementById('totalBalance').textContent = '$' + totalBalance.toFixed(2);
+                document.getElementById('totalAdmins').textContent = totalAdmins;
+            });
+            
+            db.collection('trades').get().then((snapshot) => {
+                document.getElementById('totalTrades').textContent = snapshot.size;
+            }).catch(() => {
+                document.getElementById('totalTrades').textContent = '0';
+            });
+        }
+
+        function refreshUsers() {
+            loadAdminData();
+            showToast('Users refreshed');
+        }
+
+        function addMoney(userId, name) {
+            const amt = prompt(`Enter amount to add to ${name}'s balance:`);
+            if (amt && parseFloat(amt) > 0) {
+                db.collection('users').doc(userId).update({
+                    balance: firebase.firestore.FieldValue.increment(parseFloat(amt))
+                }).then(() => {
+                    showToast(`$${amt} added to ${name}`);
+                    loadAdminData();
+                });
+            }
+        }
+
+        function viewUser(userId) {
+            db.collection('users').doc(userId).get().then((doc) => {
+                if (doc.exists) {
+                    const u = doc.data();
+                    const createdAt = u.createdAt ? u.createdAt.toDate().toLocaleString() : '-';
+                    alert(`
+                        Name: ${u.name}
+                        Email: ${u.email}
+                    
