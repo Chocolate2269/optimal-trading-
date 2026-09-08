@@ -1,6 +1,3 @@
-The issue is likely that the code got cut off. Let me give you a complete, working index.html that's clean and won't be blank:
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,13 +19,17 @@ The issue is likely that the code got cut off. Let me give you a complete, worki
             --bg-light: #16213e;
             --bg-accent: #0f3460;
             --glass-white: rgba(255, 255, 255, 0.15);
-            --glass-white-strong: rgba(255, 255, 255, 0.25);
-            --glass-border: rgba(255, 255, 255, 0.3);
+            --glass-white-strong: rgba(255, 255, 255, 0.28);
+            --glass-border: rgba(255, 255, 255, 0.35);
             --text-primary: #ffffff;
             --text-secondary: #e0e0e0;
             --accent-blue: #4a9eff;
+            --accent-purple: #9d4edd;
+            --accent-cyan: #00d4ff;
             --accent-green: #00ff88;
             --accent-red: #ff4444;
+            --accent-gold: #ffaa00;
+            --accent-pink: #ff6b9d;
         }
 
         * {
@@ -46,37 +47,58 @@ The issue is likely that the code got cut off. Let me give you a complete, worki
             position: relative;
         }
 
+        /* BRIGHT ORBS - Make glassmorphism visible */
         .bg-orb {
             position: fixed;
             border-radius: 50%;
-            filter: blur(80px);
+            filter: blur(70px);
             pointer-events: none;
             z-index: 1;
+            animation: orbFloat 8s ease-in-out infinite;
         }
 
         .orb-blue {
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(74, 158, 255, 0.4), transparent 70%);
-            top: -100px;
-            left: -100px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(74, 158, 255, 0.55), transparent 70%);
+            top: -150px;
+            left: -150px;
         }
 
         .orb-purple {
-            width: 350px;
-            height: 350px;
-            background: radial-gradient(circle, rgba(157, 78, 221, 0.35), transparent 70%);
-            bottom: -50px;
-            right: -50px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.5), transparent 70%);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -2s;
         }
 
+        .orb-cyan {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.45), transparent 70%);
+            top: 40%;
+            left: 60%;
+            animation-delay: -4s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        /* VISIBLE GLASSMORPHISM */
         .glass {
             background: var(--glass-white);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
             position: relative;
             z-index: 10;
             transition: all 0.3s ease;
@@ -84,69 +106,104 @@ The issue is likely that the code got cut off. Let me give you a complete, worki
 
         .glass:hover {
             background: var(--glass-white-strong);
-            border-color: rgba(255, 255, 255, 0.5);
+            border-color: rgba(255, 255, 255, 0.55);
+            box-shadow: 
+                0 12px 48px rgba(0, 0, 0, 0.25),
+                0 0 60px rgba(255, 255, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .glass-shine {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-shine::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+            animation: shineSweep 3s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes shineSweep {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
         }
 
         .text-shine {
-            background: linear-gradient(135deg, #ffffff 0%, #a8d8ff 50%, #ffffff 100%);
-            background-size: 200% auto;
+            background: linear-gradient(135deg, #ffffff 0%, #a8d8ff 30%, #c4b5fd 60%, #ffffff 100%);
+            background-size: 300% auto;
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            animation: textShimmer 3s linear infinite;
+            animation: textShimmer 4s linear infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
         }
 
         @keyframes textShimmer {
             0% { background-position: 0% center; }
-            100% { background-position: 200% center; }
+            100% { background-position: 300% center; }
         }
 
         .btn-glass {
             padding: 12px 28px;
             border-radius: 12px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: #ffffff;
-            font-size: 14px;
+            font-size: 13px;
             letter-spacing: 0.5px;
             text-transform: uppercase;
         }
 
         .btn-glass:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
         }
 
         .btn-primary {
-            background: rgba(74, 158, 255, 0.3);
-            border-color: rgba(74, 158, 255, 0.5);
+            background: rgba(74, 158, 255, 0.35);
+            border-color: rgba(74, 158, 255, 0.6);
+            box-shadow: 0 0 20px rgba(74, 158, 255, 0.3);
         }
 
         .btn-primary:hover {
-            background: rgba(74, 158, 255, 0.5);
+            background: rgba(74, 158, 255, 0.55);
+            box-shadow: 0 0 40px rgba(74, 158, 255, 0.5);
         }
 
         .btn-success {
-            background: rgba(0, 255, 136, 0.3);
-            border-color: rgba(0, 255, 136, 0.5);
+            background: rgba(0, 255, 136, 0.35);
+            border-color: rgba(0, 255, 136, 0.6);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
         }
 
         .btn-success:hover {
-            background: rgba(0, 255, 136, 0.5);
+            background: rgba(0, 255, 136, 0.55);
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.5);
         }
 
         .btn-outline {
-            background: transparent;
+            background: rgba(255, 255, 255, 0.1);
             border-color: rgba(255, 255, 255, 0.3);
         }
 
         .btn-danger {
-            background: rgba(255, 68, 68, 0.3);
-            border-color: rgba(255, 68, 68, 0.5);
+            background: rgba(255, 68, 68, 0.35);
+            border-color: rgba(255, 68, 68, 0.6);
         }
 
+        /* Navbar */
         .navbar {
             position: fixed;
             top: 0;
@@ -157,9 +214,9 @@ The issue is likely that the code got cut off. Let me give you a complete, worki
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(26, 26, 46, 0.5);
+            background: rgba(26, 26, 46, 0.6);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .navbar-logo {
@@ -185,7 +242,7 @@ The issue is likely that the code got cut off. Let me give you a complete, worki
         }
 
         .hero-title {
-            font-size: 60px;
+            font-size: 56px;
             font-weight: 900;
             margin-bottom: 20px;
             text-align: center;
@@ -208,9 +265,49 @@ The issue is likely that the code got cut off. Let me give you a complete, worki
             margin-bottom: 60px;
         }
 
+        /* Auth Section (visible on homepage) */
+        .auth-section {
+            max-width: 450px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: rgba(74, 158, 255, 0.8);
+            box-shadow: 0 0 20px rgba(74, 158, 255, 0.4);
+        }
+
+        .input-field::placeholder {
+            color: #a0a0b0;
+        }
+
         .features-section {
             max-width: 1200px;
-            margin: 0 auto;
+            margin: 40px auto;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
@@ -240,52 +337,6 @@ The issue is likely that the code got cut off. Let me give you a complete, worki
             line-height: 1.5;
         }
 
-        .auth-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .auth-overlay.active {
-            display: flex;
-        }
-
-        .auth-card {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(30px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 24px;
-            padding: 40px;
-            width: 100%;
-            max-width: 420px;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #ffffff;
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: rgba(74, 158, 255, 0.8);
-        }
-
-        .input-field::placeholder {
-            color: #a0a0b0;
-        }
-
         .toast {
             position: fixed;
             bottom: 20px;
@@ -310,8 +361,10 @@ The issue is likely that the code got cut off. Let me give you a complete, worki
     </style>
 </head>
 <body>
+    <!-- Colorful Orbs -->
     <div class="bg-orb orb-blue"></div>
     <div class="bg-orb orb-purple"></div>
+    <div class="bg-orb orb-cyan"></div>
     
     <div class="toast" id="toast"></div>
     
@@ -319,8 +372,8 @@ The issue is likely that the code got cut off. Let me give you a complete, worki
     <nav class="navbar">
         <div class="navbar-logo text-shine">⚡ OPTIMAL</div>
         <div class="navbar-links" id="navLoggedOut">
-            <button class="btn-glass btn-outline" onclick="openAuth('login')">Login</button>
-            <button class="btn-glass btn-primary" onclick="openAuth('signup')">Sign Up</button>
+            <button class="btn-glass btn-outline" onclick="scrollToAuth('login')">Login</button>
+            <button class="btn-glass btn-primary" onclick="scrollToAuth('signup')">Sign Up</button>
         </div>
         <div class="navbar-links" id="navLoggedIn" style="display: none;">
             <span id="navUserName" style="font-weight: 600;"></span>
@@ -330,64 +383,54 @@ The issue is likely that the code got cut off. Let me give you a complete, worki
     </nav>
     
     <!-- Home Page -->
-    <div class="home-container" id="homePage">
+    <div class="home-container">
         <h1 class="hero-title text-shine">Trade Smarter.<br>Trade Optimal.</h1>
         <p class="hero-subtitle">
             The most advanced trading platform with real-time analytics,
             secure transactions, and professional-grade tools.
         </p>
-        <div class="hero-buttons">
-            <button class="btn-glass btn-success" onclick="openAuth('signup')">🚀 Get Started</button>
-            <button class="btn-glass btn-outline" onclick="openAuth('login')">Login</button>
-        </div>
         
-        <div class="features-section">
-            <div class="glass feature-card">
-                <div class="feature-icon">📊</div>
-                <div class="feature-title">Real-Time Analytics</div>
-                <div class="feature-description">Live market data and advanced charting tools.</div>
-            </div>
-            <div class="glass feature-card">
-                <div class="feature-icon">🔒</div>
-                <div class="feature-title">Secure Trading</div>
-                <div class="feature-description">Bank-grade security with Firebase authentication.</div>
-            </div>
-            <div class="glass feature-card">
-                <div class="feature-icon">⚡</div>
-                <div class="feature-title">Lightning Fast</div>
-                <div class="feature-description">Execute trades in milliseconds.</div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Auth Modal -->
-    <div class="auth-overlay" id="authOverlay">
-        <div class="auth-card">
-            <div style="text-align: center; margin-bottom: 24px;">
-                <div class="text-shine" style="font-size: 24px; font-weight: 900;">⚡ OPTIMAL</div>
-                <div id="authTitle" style="font-size: 14px; color: #e0e0e0; margin-top: 8px;">Login</div>
+        <!-- Auth Section with Tabs -->
+        <div class="glass glass-shine auth-section" id="authSection">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div class="text-shine" style="font-size: 20px; font-weight: 900;">Welcome</div>
             </div>
             
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <button class="btn-glass btn-primary" id="loginTab" onclick="switchAuth('login')" style="flex: 1;">Login</button>
-                <button class="btn-glass btn-outline" id="signupTab" onclick="switchAuth('signup')" style="flex: 1;">Sign Up</button>
+            <div class="auth-tabs">
+                <button class="btn-glass btn-primary auth-tab" id="loginTab" onclick="switchAuth('login')">Login</button>
+                <button class="btn-glass btn-outline auth-tab" id="signupTab" onclick="switchAuth('signup')">Sign Up</button>
             </div>
             
             <form id="loginForm">
                 <input type="email" id="loginEmail" class="input-field" placeholder="Email" required>
                 <input type="password" id="loginPassword" class="input-field" placeholder="Password" required>
-                <button type="submit" class="btn-glass btn-primary" style="width: 100%;">Login</button>
+                <button type="submit" class="btn-glass btn-primary" style="width: 100%;">Login to Dashboard</button>
             </form>
             
             <form id="signupForm" style="display: none;">
                 <input type="text" id="signupName" class="input-field" placeholder="Full Name" required>
                 <input type="email" id="signupEmail" class="input-field" placeholder="Email" required>
                 <input type="password" id="signupPassword" class="input-field" placeholder="Password (min 6)" required minlength="6">
-                <button type="submit" class="btn-glass btn-success" style="width: 100%;">Sign Up</button>
+                <button type="submit" class="btn-glass btn-success" style="width: 100%;">Sign Up & Go to Dashboard</button>
             </form>
-            
-            <div style="text-align: center; margin-top: 16px;">
-                <button onclick="closeAuth()" style="background: none; border: none; color: #a0a0b0; cursor: pointer;">✕ Close</button>
+        </div>
+        
+        <!-- Features -->
+        <div class="features-section">
+            <div class="glass glass-shine feature-card">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">Real-Time Analytics</div>
+                <div class="feature-description">Live market data and advanced charting tools.</div>
+            </div>
+            <div class="glass glass-shine feature-card">
+                <div class="feature-icon">🔒</div>
+                <div class="feature-title">Secure Trading</div>
+                <div class="feature-description">Bank-grade security with Firebase authentication.</div>
+            </div>
+            <div class="glass glass-shine feature-card">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-title">Lightning Fast</div>
+                <div class="feature-description">Execute trades in milliseconds.</div>
             </div>
         </div>
     </div>
@@ -419,29 +462,23 @@ The issue is likely that the code got cut off. Let me give you a complete, worki
             setTimeout(() => t.style.display = 'none', 3000);
         }
 
-        function openAuth(mode) {
-            document.getElementById('authOverlay').classList.add('active');
-            switchAuth(mode);
-        }
-
-        function closeAuth() {
-            document.getElementById('authOverlay').classList.remove('active');
-        }
-
         function switchAuth(mode) {
             if (mode === 'login') {
                 document.getElementById('loginForm').style.display = 'block';
                 document.getElementById('signupForm').style.display = 'none';
-                document.getElementById('loginTab').className = 'btn-glass btn-primary';
-                document.getElementById('signupTab').className = 'btn-glass btn-outline';
-                document.getElementById('authTitle').textContent = 'Login';
+                document.getElementById('loginTab').className = 'btn-glass btn-primary auth-tab';
+                document.getElementById('signupTab').className = 'btn-glass btn-outline auth-tab';
             } else {
                 document.getElementById('loginForm').style.display = 'none';
                 document.getElementById('signupForm').style.display = 'block';
-                document.getElementById('loginTab').className = 'btn-glass btn-outline';
-                document.getElementById('signupTab').className = 'btn-glass btn-primary';
-                document.getElementById('authTitle').textContent = 'Sign Up';
+                document.getElementById('loginTab').className = 'btn-glass btn-outline auth-tab';
+                document.getElementById('signupTab').className = 'btn-glass btn-primary auth-tab';
             }
+        }
+
+        function scrollToAuth(mode) {
+            document.getElementById('authSection').scrollIntoView({ behavior: 'smooth' });
+            switchAuth(mode);
         }
 
         document.getElementById('loginForm').addEventListener('submit', (e) => {
@@ -451,7 +488,6 @@ The issue is likely that the code got cut off. Let me give you a complete, worki
             auth.signInWithEmailAndPassword(email, password)
                 .then(() => {
                     showToast('Login successful!');
-                    closeAuth();
                     window.location.href = 'dashboard.html';
                 })
                 .catch(err => showToast(err.message, 'error'));
@@ -475,7 +511,6 @@ The issue is likely that the code got cut off. Let me give you a complete, worki
                 })
                 .then(() => {
                     showToast('Account created!');
-                    closeAuth();
                     window.location.href = 'dashboard.html';
                 })
                 .catch(err => showToast(err.message, 'error'));
@@ -497,9 +532,9 @@ The issue is likely that the code got cut off. Let me give you a complete, worki
                 document.getElementById('navLoggedIn').style.display = 'none';
             }
         });
+
+        // Default to login
+        switchAuth('login');
     </script>
 </body>
 </html>
-```
-
-This is a complete, working index.html. Save it and open in your browser. It should display the homepage with Login/Sign Up buttons that redirect to dashboard.html. 🚀
