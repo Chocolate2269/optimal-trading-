@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimal Trading - Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        :root {
+            --glass-white: rgba(255,255,255,0.15);
+            --glass-border: rgba(255,255,255,0.35);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+        .bg-orb { position: fixed; border-radius: 50%; filter: blur(70px); pointer-events: none; z-index: 1; }
+        .orb-blue { width: 500px; height: 500px; background: rgba(74,158,255,0.4); top: -150px; left: -150px; }
+        .orb-purple { width: 450px; height: 450px; background: rgba(157,78,221,0.35); bottom: -100px; right: -100px; }
+        .glass {
+            background: var(--glass-white);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            position: relative; z-index: 10;
+        }
+        .text-shine {
+            background: linear-gradient(135deg, #fff 0%, #ffd700 50%, #fff 100%);
+            background-size: 200% auto; -webkit-background-clip: text;
+            background-clip: text; color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+        @keyframes shimmer { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
+        .btn-glass {
+            padding: 8px 14px; border-radius: 8px; font-weight: 600;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.3);
+            color: #fff; font-size: 11px; text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .btn-glass:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,255,255,0.2); }
+        .btn-primary { background: rgba(74,158,255,0.35); }
+        .btn-success { background: rgba(0,255,136,0.35); }
+        .btn-danger { background: rgba(255,68,68,0.35); }
+        .btn-outline { background: transparent; }
+        .btn-gold { background: rgba(255,170,0,0.35); }
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 16px 24px; display: flex; justify-content: space-between;
+            align-items: center; background: rgba(26,26,46,0.7);
+            backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.15);
+        }
+        .navbar-logo { font-size: 22px; font-weight: 900; }
+        .navbar-links { display: flex; gap: 10px; }
+        .container { padding: 100px 20px 20px; max-width: 1600px; margin: 0 auto; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { padding: 20px; text-align: center; }
+        .stat-value { font-size: 28px; font-weight: 800; }
+        .stat-label { font-size: 10px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 2px; margin-top: 4px; }
+        .table-container { padding: 24px; overflow-x: auto; }
+        .admin-table { width: 100%; border-collapse: collapse; }
+        .admin-table th, .admin-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 13px; }
+        .admin-table th { background: rgba(255,255,255,0.1); font-size: 11px; text-transform: uppercase; }
+        .admin-table tr:hover { background: rgba(255,255,255,0.05); }
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 600; }
+        .badge-admin { background: rgba(255,170,0,0.3); color: #ffd700; }
+        .badge-user { background: rgba(74,158,255,0.3); color: #a8d8ff; }
+        .country-cell { display: flex; align-items: center; gap: 6px; }
+        .flag { font-size: 18px; }
+        .spinner {
+            display: inline-block; width: 40px; height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #4a9eff; border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .toast {
+            position: fixed; bottom: 20px; right: 20px; padding: 16px 24px;
+            border-radius: 12px; background: rgba(30,30,50,0.95);
+            border: 1px solid rgba(255,255,255,0.3);
+            z-index: 2000; display: none; color: #fff;
+        }
+        .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+        .filter-bar input, .filter-bar select {
+            padding: 8px 14px; border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff; font-size: 12px;
+        }
+        .filter-bar input::placeholder { color: #a0a0b0; }
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; gap: 10px; }
+            .container { padding: 130px 12px 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-orb orb-blue"></div>
+    <div class="bg-orb orb-purple"></div>
+    <div class="toast" id="toast"></div>
+    
+    <nav class="navbar">
+        <div class="navbar-logo text-shine">👑 OPTIMAL ADMIN</div>
+        <div class="navbar-links">
+            <button class="btn-glass btn-outline" onclick="window.location.href='index.html'">🏠 Home</button>
+            <button class="btn-glass btn-outline" onclick="window.location.href='dashboard.html'">📊 Dashboard</button>
+            <button class="btn-glass btn-danger" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="stats">
+            <div class="glass stat-card">
+                <div class="stat-value" id="totalUsers" style="color:#4a9eff;">0</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="glass stat-card">
+                <div class="stat-value" id="totalBalance" style="color:#00ff88;">$0.00</div>
+                <div class="stat-label">Total Balance</div>
+            </div>
+            <div class="glass stat-card">
+                <div class="stat-value" id="totalCountries" style="color:#9d4edd;">0</div>
+                <div class="stat-label">Countries</div>
+            </div>
+            <div class="glass stat-card">
+                <div class="stat-value" id="todaySignups" style="color:#ffaa00;">0</div>
+                <div class="stat-label">Today's Signups</div>
+            </div>
+        </div>
+        
+        <div class="glass table-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                <h2 style="font-size:20px;">🌍 All Users Worldwide</h2>
+                <button class="btn-glass btn-primary" onclick="loadUsers()">🔄 Refresh</button>
+            </div>
+            
+            <div class="filter-bar">
+                <input type="text" id="searchInput" placeholder="🔍 Search name, email, country..." oninput="filterUsers()">
+                <select id="countryFilter" onchange="filterUsers()">
+                    <option value="">All Countries</option>
+                </select>
+            </div>
+            
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Country</th>
+                        <th>Balance</th>
+                        <th>Type</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTable">
+                    <tr><td colspan="8" style="text-align:center; padding:40px;">
+                        <div class="spinner"></div>
+                        <p style="margin-top:10px; color:#a0a0b0;">Loading users...</p>
+                    </td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGAmwvg6QfEAIth-XQYblRtZ47WSUMppQ",
+            authDomain: "optimal-trading.firebaseapp.com",
+            projectId: "optimal-trading",
+            storageBucket: "optimal-trading.firebasestorage.app",
+            messagingSenderId: "180919975679",
+            appId: "1:180919975679:web:31a8bf720f08df6d7cd6ca",
+            measurementId: "G-4J31RFJK03"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let allUsers = [];
+
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.style.display = 'block';
+            t.style.borderColor = type === 'success' ? '#00ff88' : '#ff4444';
+            t.style.color = type === 'success' ? '#00ff88' : '#ff4444';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        function countryFlag(code) {
+            if (!code || code === 'UN' || code.length !== 2) return '🌍';
+            return String.fromCodePoint(...[...code.toUpperCase()].map(c => 127397 + c.charCodeAt()));
+        }
+
+        function loadUsers() {
+            const tbody = document.getElementById('usersTable');
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px;">
+                <div class="spinner"></div><p style="margin-top:10px; color:#a0a0b0;">Loading...</p>
+            </td></tr>`;
+            
+            db.collection('users').orderBy('createdAt', 'desc').get()
+                .then(snapshot => {
+                    allUsers = [];
+                    let totalBalance = 0, todaySignups = 0;
+                    const countries = new Set();
+                    const today = new Date(); today.setHours(0,0,0,0);
+                    
+                    snapshot.forEach(doc => {
+                        const u = doc.data();
+                        u.id = doc.id;
+                        allUsers.push(u);
+                        totalBalance += (u.balance || 0);
+                        if (u.country) countries.add(u.country);
+                        if (u.createdAt) {
+                            const c = u.createdAt.toDate();
+                            if (c >= today) todaySignups++;
+                        }
+                    });
+                    
+                    document.getElementById('totalUsers').textContent = allUsers.length;
+                    document.getElementById('totalBalance').textContent = '$' + totalBalance.toFixed(2);
+                    document.getElementById('totalCountries').textContent = countries.size;
+                    document.getElementById('todaySignups').textContent = todaySignups;
+                    
+                    const sel = document.getElementById('countryFilter');
+                    sel.innerHTML = '<option value="">All Countries</option>';
+                    [...countries].sort().forEach(c => {
+                        sel.innerHTML += `<option value="${c}">${c}</option>`;
+                    });
+                    
+                    renderUsers(allUsers);
+                })
+                .catch(err => {
+                    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px; color:#ff4444;">
+                        Error: ${err.message}
+                    </td></tr>`;
+                });
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('usersTable');
+            tbody.innerHTML = '';
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px;">No users found</td></tr>';
+                return;
+            }
+            
+            users.forEach((u, i) => {
+                const created = u.createdAt ? u.createdAt.toDate().toLocaleString() : 'Just now';
+                const flag = countryFlag(u.countryCode);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${i + 1}</td>
+                    <td><strong>${u.name || '-'}</strong></td>
+                    <td style="font-size:12px;">${u.email || '-'}</td>
+                    <td><div class="country-cell"><span class="flag">${flag}</span><span>${u.country || 'Unknown'}</span></div></td>
+                    <td style="color:#00ff88; font-weight:600;">$${(u.balance||0).toFixed(2)}</td>
+                    <td><span class="badge ${u.isAdmin ? 'badge-admin':'badge-user'}">${u.isAdmin?'Admin':'User'}</span></td>
+                    <td style="font-size:11px; color:#a0a0b0;">${created}</td>
+                    <td>
+                        <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                            <button class="btn-glass btn-success" style="padding:6px 10px; font-size:10px;" onclick="creditUser('${u.id}','${u.name||'User'}')" title="Add money">💰 +$</button>
+                            <button class="btn-glass btn-danger" style="padding:6px 10px; font-size:10px;" onclick="debitUser('${u.id}','${u.name||'User'}')" title="Remove money">💸 -$</button>
+                            <button class="btn-glass btn-outline" style="padding:6px 10px; font-size:10px;" onclick="viewUser('${u.id}')">👁 View</button>
+                            ${!u.isAdmin ? `<button class="btn-glass btn-gold" style="padding:6px 10px; font-size:10px;" onclick="makeAdmin('${u.id}','${u.name||'User'}')">👑</button>` : ''}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterUsers() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const country = document.getElementById('countryFilter').value;
+            const filtered = allUsers.filter(u => {
+                const matchesSearch = !search ||
+                    (u.name || '').toLowerCase().includes(search) ||
+                    (u.email || '').toLowerCase().includes(search) ||
+                    (u.country || '').toLowerCase().includes(search);
+                const matchesCountry = !country || u.country === country;
+                return matchesSearch && matchesCountry;
+            });
+            renderUsers(filtered);
+        }
+
+        // 💰 CREDIT - ADD MONEY
+        function creditUser(uid, name) {
+            const amt = prompt(`💰 CREDIT - Add money to ${name}'s account:\n\nEnter amount in $:`, '100');
+            if (amt && parseFloat(amt) > 0) {
+                const amount = parseFloat(amt);
+                if (!confirm(`Confirm: Add $${amount.toFixed(2)} to ${name}?`)) return;
+                
+                db.collection('users').doc(uid).update({
+                    balance: firebase.firestore.FieldValue.increment(amount),
+                    lastTransaction: {
+                        type: 'credit',
+                        amount: amount,
+                        timestamp: new Date().toISOString(),
+                        by: 'admin'
+                    }
+                }).then(() => {
+                    showToast(`✅ $${amount.toFixed(2)} credited to ${name}`);
+                    loadUsers();
+                }).catch(err => showToast(err.message, 'error'));
+            }
+        }
+
+        // 💸 DEBIT - REMOVE MONEY
+        function debitUser(uid, name) {
+            const amt = prompt(`💸 DEBIT - Remove money from ${name}'s account:\n\nEnter amount in $:`, '50');
+            if (amt && parseFloat(amt) > 0) {
+                const amount = parseFloat(amt);
+                if (!confirm(`Confirm: Debit $${amount.toFixed(2)} from ${name}?`)) return;
+                
+                // Get current balance to check
+                db.collection('users').doc(uid).get().then(doc => {
+                    const currentBalance = doc.data().balance || 0;
+                    if (amount > currentBalance) {
+                        if (!confirm(`⚠️ Warning: Balance is only $${currentBalance.toFixed(2)}.\nThis will go negative. Continue?`)) return;
+                    }
+                    
+                    db.collection('users').doc(uid).update({
+                        balance: firebase.firestore.FieldValue.increment(-amount),
+                        lastTransaction: {
+                            type: 'debit',
+                            amount: amount,
+                            timestamp: new Date().toISOString(),
+                            by: 'admin'
+                        }
+                    }).then(() => {
+                        showToast(`💸 $${amount.toFixed(2)} debited from ${name}`);
+                        loadUsers();
+                    }).catch(err => showToast(err.message, 'error'));
+                });
+            }
+        }
+
+        function viewUser(uid) {
+            db.collection('users').doc(uid).get().then(doc => {
+                if (doc.exists) {
+                    const u = doc.data();
+                    const flag = countryFlag(u.countryCode);
+                    alert(`🌍 USER DETAILS
+━━━━━━━━━━━━━━━━━━━━━
+Name:     ${u.name}
+Email:    ${u.email}
+Country:  ${flag} ${u.country || 'Unknown'}
+City:     ${u.city || '—'}
+Browser:  ${u.browser || '—'}
+Device:   ${u.device || '—'}
+Balance:  $${(u.balance||0).toFixed(2)}
+Type:     ${u.isAdmin ? 'Admin' : 'User'}
+Joined:   ${u.createdAt ? u.createdAt.toDate().toLocaleString() : '—'}`);
+                }
+            });
+        }
+
+        function makeAdmin(uid, name) {
+            if (confirm(`Make ${name} admin?`)) {
+                db.collection('users').doc(uid).update({ isAdmin: true, accountType: 'admin' })
+                    .then(() => { showToast(`${name} is now admin`); loadUsers(); });
+            }
+        }
+
+        function logout() {
+            auth.signOut().then(() => window.location.href = 'index.html');
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.collection('users').doc(user.uid).get().then(doc => {
+                    if (doc.exists && doc.data().isAdmin) {
+                        loadUsers();
+                        db.collection('users').onSnapshot(() => loadUsers());
+                    } else {
+                        alert('Admin only!');
+                        window.location.href = 'index.html';
+                    }
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+
+    <!-- Tawk.to Instant Popup -->
+    <script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    Tawk_API.onLoad = function(){ Tawk_API.maximize(); };
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/6aa0658f3c952a34498f76ae/1k218pfje';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
+    </script>
+</body>
+</html>
