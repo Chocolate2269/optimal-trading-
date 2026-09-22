@@ -1,348 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimal Trading - Premium Trading Platform</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <style>
-        :root {
-            --glass-white: rgba(255,255,255,0.15);
-            --glass-white-strong: rgba(255,255,255,0.28);
-            --glass-border: rgba(255,255,255,0.35);
-            --text-primary: #fff;
-            --text-secondary: #e0e0e0;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        .bg-orb { position: fixed; border-radius: 50%; filter: blur(70px); pointer-events: none; z-index: 1; animation: orbFloat 8s ease-in-out infinite; }
-        .orb-blue { width: 500px; height: 500px; background: radial-gradient(circle, rgba(74,158,255,0.55), transparent 70%); top: -150px; left: -150px; }
-        .orb-purple { width: 450px; height: 450px; background: radial-gradient(circle, rgba(157,78,221,0.5), transparent 70%); bottom: -100px; right: -100px; animation-delay: -2s; }
-        .orb-cyan { width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,212,255,0.45), transparent 70%); top: 40%; left: 60%; animation-delay: -4s; }
-        @keyframes orbFloat { 0%, 100% { transform: translate(0,0) scale(1); } 33% { transform: translate(30px,-30px) scale(1.1); } 66% { transform: translate(-20px,20px) scale(0.9); } }
-        .glass {
-            background: var(--glass-white);
-            backdrop-filter: blur(25px) saturate(180%);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.25);
-            position: relative; z-index: 10; transition: all 0.3s ease;
-        }
-        .glass:hover { background: var(--glass-white-strong); transform: translateY(-4px); }
-        .glass-shine { position: relative; overflow: hidden; }
-        .glass-shine::before {
-            content: ''; position: absolute; top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
-            animation: shineSweep 3s ease-in-out infinite; pointer-events: none;
-        }
-        @keyframes shineSweep { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
-        .text-shine {
-            background: linear-gradient(135deg, #fff 0%, #a8d8ff 30%, #c4b5fd 60%, #fff 100%);
-            background-size: 300% auto; -webkit-background-clip: text; background-clip: text;
-            color: transparent; animation: textShimmer 4s linear infinite;
-        }
-        @keyframes textShimmer { 0% { background-position: 0% center; } 100% { background-position: 300% center; } }
-        .btn-glass {
-            padding: 12px 28px; border-radius: 12px; font-weight: 700;
-            cursor: pointer; transition: all 0.3s ease;
-            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);
-            color: #fff; font-size: 13px; text-transform: uppercase;
-        }
-        .btn-glass:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,255,255,0.3); }
-        .btn-primary { background: rgba(74,158,255,0.35); border-color: rgba(74,158,255,0.6); }
-        .btn-success { background: rgba(0,255,136,0.35); border-color: rgba(0,255,136,0.6); }
-        .btn-outline { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
-        .btn-danger { background: rgba(255,68,68,0.35); border-color: rgba(255,68,68,0.6); }
-        .navbar {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-            padding: 16px 24px; display: flex; justify-content: space-between;
-            align-items: center; background: rgba(26,26,46,0.6);
-            backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.15);
-        }
-        .navbar-logo { font-size: 24px; font-weight: 900; }
-        .navbar-links { display: flex; gap: 10px; align-items: center; }
-        .home-container {
-            position: relative; z-index: 10; min-height: 100vh;
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; padding: 100px 20px 40px;
-        }
-        .hero-title { font-size: 56px; font-weight: 900; margin-bottom: 20px; text-align: center; line-height: 1.1; }
-        .hero-subtitle { font-size: 18px; color: var(--text-secondary); margin-bottom: 40px; text-align: center; max-width: 620px; }
-        .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 50px; }
-        .auth-section { max-width: 450px; width: 100%; margin: 0 auto 60px; padding: 40px; }
-        .auth-tabs { display: flex; gap: 10px; margin-bottom: 24px; }
-        .auth-tab { flex: 1; text-align: center; }
-        .input-field {
-            width: 100%; padding: 14px; border-radius: 12px;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
-            color: #fff; font-size: 14px; margin-bottom: 16px;
-        }
-        .input-field:focus { outline: none; border-color: rgba(74,158,255,0.8); box-shadow: 0 0 20px rgba(74,158,255,0.4); }
-        .input-field::placeholder { color: #a0a0b0; }
-        .features-section {
-            max-width: 1200px; margin: 40px auto;
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px; padding: 20px; width: 100%;
-        }
-        .feature-card { padding: 28px; text-align: center; }
-        .feature-icon { font-size: 48px; margin-bottom: 16px; }
-        .feature-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
-        .feature-description { color: var(--text-secondary); font-size: 14px; }
-        .toast {
-            position: fixed; bottom: 20px; right: 20px; padding: 16px 24px;
-            border-radius: 12px; background: rgba(30,30,50,0.95);
-            border: 1px solid rgba(255,255,255,0.3); z-index: 2000;
-            display: none; color: #fff;
-        }
-        @media (max-width: 768px) {
-            .hero-title { font-size: 36px; }
-            .navbar { flex-direction: column; gap: 10px; padding: 12px 16px; }
-            .btn-glass { padding: 10px 18px; font-size: 11px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Optimal Trading - Premium Trading Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<style>
+:root { --glass-white: rgba(255,255,255,0.15); --glass-white-strong: rgba(255,255,255,0.28); --glass-border: rgba(255,255,255,0.35); --text-primary: #fff; --text-secondary: #e0e0e0; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
+.bg-orb { position: fixed; border-radius: 50%; filter: blur(70px); pointer-events: none; z-index: 1; animation: orbFloat 8s ease-in-out infinite; }
+.orb-blue { width: 500px; height: 500px; background: radial-gradient(circle, rgba(74,158,255,0.55), transparent 70%); top: -150px; left: -150px; }
+.orb-purple { width: 450px; height: 450px; background: radial-gradient(circle, rgba(157,78,221,0.5), transparent 70%); bottom: -100px; right: -100px; animation-delay: -2s; }
+.orb-cyan { width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,212,255,0.45), transparent 70%); top: 40%; left: 60%; animation-delay: -4s; }
+@keyframes orbFloat { 0%, 100% { transform: translate(0,0) scale(1); } 33% { transform: translate(30px,-30px) scale(1.1); } 66% { transform: translate(-20px,20px) scale(0.9); } }
+.glass { background: var(--glass-white); backdrop-filter: blur(25px) saturate(180%); -webkit-backdrop-filter: blur(25px) saturate(180%); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.25); position: relative; z-index: 10; transition: all 0.3s ease; }
+.glass:hover { background: var(--glass-white-strong); transform: translateY(-4px); }
+.glass-shine { position: relative; overflow: hidden; }
+.glass-shine::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%); animation: shineSweep 3s ease-in-out infinite; pointer-events: none; }
+@keyframes shineSweep { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
+.text-shine { background: linear-gradient(135deg, #fff 0%, #a8d8ff 30%, #c4b5fd 60%, #fff 100%); background-size: 300% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: textShimmer 4s linear infinite; }
+@keyframes textShimmer { 0% { background-position: 0% center; } 100% { background-position: 300% center; } }
+.btn-glass { padding: 12px 28px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-size: 13px; text-transform: uppercase; }
+.btn-glass:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,255,255,0.3); }
+.btn-primary { background: rgba(74,158,255,0.35); border-color: rgba(74,158,255,0.6); }
+.btn-success { background: rgba(0,255,136,0.35); border-color: rgba(0,255,136,0.6); }
+.btn-outline { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+.btn-danger { background: rgba(255,68,68,0.35); border-color: rgba(255,68,68,0.6); }
+.navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; background: rgba(26,26,46,0.6); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.15); }
+.navbar-logo { font-size: 24px; font-weight: 900; }
+.navbar-links { display: flex; gap: 10px; align-items: center; }
+.home-container { position: relative; z-index: 10; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 100px 20px 40px; }
+.hero-title { font-size: 56px; font-weight: 900; margin-bottom: 20px; text-align: center; line-height: 1.1; }
+.hero-subtitle { font-size: 18px; color: var(--text-secondary); margin-bottom: 40px; text-align: center; max-width: 620px; }
+.hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 50px; }
+.auth-section { max-width: 450px; width: 100%; margin: 0 auto 60px; padding: 40px; }
+.auth-tabs { display: flex; gap: 10px; margin-bottom: 24px; }
+.auth-tab { flex: 1; text-align: center; }
+.input-field { width: 100%; padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-size: 14px; margin-bottom: 16px; }
+.input-field:focus { outline: none; border-color: rgba(74,158,255,0.8); box-shadow: 0 0 20px rgba(74,158,255,0.4); }
+.input-field::placeholder { color: #a0a0b0; }
+.features-section { max-width: 1200px; margin: 40px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 20px; width: 100%; }
+.feature-card { padding: 28px; text-align: center; }
+.feature-icon { font-size: 48px; margin-bottom: 16px; }
+.feature-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+.feature-description { color: var(--text-secondary); font-size: 14px; }
+.toast { position: fixed; bottom: 20px; right: 20px; padding: 16px 24px; border-radius: 12px; background: rgba(30,30,50,0.95); border: 1px solid rgba(255,255,255,0.3); z-index: 2000; display: none; color: #fff; }
+@media (max-width: 768px) {.hero-title { font-size: 36px; }.navbar { flex-direction: column; gap: 10px; padding: 12px 16px; }.btn-glass { padding: 10px 18px; font-size: 11px; } }
+</style>
 </head>
 <body>
-    <div class="bg-orb orb-blue"></div>
-    <div class="bg-orb orb-purple"></div>
-    <div class="bg-orb orb-cyan"></div>
-    <div class="toast" id="toast"></div>
-    
-    <nav class="navbar">
-        <div class="navbar-logo text-shine">⚡ OPTIMAL</div>
-        <div class="navbar-links" id="navLoggedOut">
-            <button class="btn-glass btn-outline" onclick="scrollToAuth('login')">Login</button>
-            <button class="btn-glass btn-primary" onclick="scrollToAuth('signup')">Sign Up</button>
-        </div>
-        <div class="navbar-links" id="navLoggedIn" style="display:none;">
-            <span id="navUserName" style="font-weight:600;"></span>
-            <button class="btn-glass btn-success" onclick="window.location.href='dashboard.html'">Dashboard</button>
-            <button class="btn-glass btn-danger" onclick="logout()">Logout</button>
-        </div>
-    </nav>
-    
-    <div class="home-container">
-        <h1 class="hero-title text-shine">Trade Smarter.<br>Trade Optimal.</h1>
-        <p class="hero-subtitle">The most advanced trading platform with real-time analytics, secure transactions, and professional tools.</p>
-        
-        <div class="hero-buttons">
-            <button class="btn-glass btn-success" onclick="scrollToAuth('signup')">🚀 Get Started</button>
-            <button class="btn-glass btn-outline" onclick="scrollToAuth('login')">Login</button>
-        </div>
-        
-        <div class="glass glass-shine auth-section" id="authSection">
-            <div style="text-align:center; margin-bottom:20px;">
-                <div class="text-shine" style="font-size:20px; font-weight:900;">Welcome</div>
-                <div style="font-size:12px; color:#a0a0b0; margin-top:6px;">Login or create your account</div>
-            </div>
-            <div class="auth-tabs">
-                <button class="btn-glass btn-primary auth-tab" id="loginTab" onclick="switchAuth('login')">Login</button>
-                <button class="btn-glass btn-outline auth-tab" id="signupTab" onclick="switchAuth('signup')">Sign Up</button>
-            </div>
-            
-            <form id="loginForm">
-                <input type="email" id="loginEmail" class="input-field" placeholder="Email" required>
-                <input type="password" id="loginPassword" class="input-field" placeholder="Password" required>
-                <button type="submit" class="btn-glass btn-primary" style="width:100%;">Login to Dashboard</button>
-            </form>
-            
-            <form id="signupForm" style="display:none;">
-                <input type="text" id="signupName" class="input-field" placeholder="Full Name" required>
-                <input type="email" id="signupEmail" class="input-field" placeholder="Email" required>
-                <input type="password" id="signupPassword" class="input-field" placeholder="Password (min 6)" required minlength="6">
-                <button type="submit" class="btn-glass btn-success" style="width:100%;">Sign Up & Go to Dashboard</button>
-            </form>
-        </div>
-        
-        <div class="features-section">
-            <div class="glass glass-shine feature-card">
-                <div class="feature-icon">📊</div>
-                <div class="feature-title">Real-Time Analytics</div>
-                <div class="feature-description">Live market data and advanced charting.</div>
-            </div>
-            <div class="glass glass-shine feature-card">
-                <div class="feature-icon">🔒</div>
-                <div class="feature-title">Secure Trading</div>
-                <div class="feature-description">Bank-grade security with Firebase.</div>
-            </div>
-            <div class="glass glass-shine feature-card">
-                <div class="feature-icon">⚡</div>
-                <div class="feature-title">Lightning Fast</div>
-                <div class="feature-description">Execute trades in milliseconds.</div>
-            </div>
-        </div>
-    </div>
+<div class="bg-orb orb-blue"></div>
+<div class="bg-orb orb-purple"></div>
+<div class="bg-orb orb-cyan"></div>
+<div class="toast" id="toast"></div>
+<nav class="navbar">
+<div class="navbar-logo text-shine">⚡ OPTIMAL</div>
+<div class="navbar-links" id="navLoggedOut">
+<button class="btn-glass btn-outline" onclick="scrollToAuth('login')">Login</button>
+<button class="btn-glass btn-primary" onclick="scrollToAuth('signup')">Sign Up</button>
+</div>
+<div class="navbar-links" id="navLoggedIn" style="display:none;">
+<span id="navUserName" style="font-weight:600;"></span>
+<button class="btn-glass btn-success" onclick="window.location.href='dashboard.html'">Dashboard</button>
+<button class="btn-glass btn-danger" onclick="logout()">Logout</button>
+</div>
+</nav>
+<div class="home-container">
+<h1 class="hero-title text-shine">Trade Smarter.<br>Trade Optimal.</h1>
+<p class="hero-subtitle">The most advanced trading platform with real-time analytics, secure transactions, and professional tools.</p>
+<div class="hero-buttons">
+<button class="btn-glass btn-success" onclick="scrollToAuth('signup')">🚀 Get Started</button>
+<button class="btn-glass btn-outline" onclick="scrollToAuth('login')">Login</button>
+</div>
+<div class="glass glass-shine auth-section" id="authSection">
+<div style="text-align:center; margin-bottom:20px;">
+<div class="text-shine" style="font-size:20px; font-weight:900;">Welcome</div>
+<div style="font-size:12px; color:#a0a0b0; margin-top:6px;">Login or create your account</div>
+</div>
+<div class="auth-tabs">
+<button class="btn-glass btn-primary auth-tab" id="loginTab" onclick="switchAuth('login')">Login</button>
+<button class="btn-glass btn-outline auth-tab" id="signupTab" onclick="switchAuth('signup')">Sign Up</button>
+</div>
+<form id="loginForm">
+<input type="email" id="loginEmail" class="input-field" placeholder="Email" required>
+<input type="password" id="loginPassword" class="input-field" placeholder="Password" required>
+<button type="submit" class="btn-glass btn-primary" style="width:100%;">Login to Dashboard</button>
+</form>
+<form id="signupForm" style="display:none;">
+<input type="text" id="signupName" class="input-field" placeholder="Full Name" required>
+<input type="email" id="signupEmail" class="input-field" placeholder="Email" required>
+<input type="password" id="signupPassword" class="input-field" placeholder="Password (min 6)" required minlength="6">
+<button type="submit" class="btn-glass btn-success" style="width:100%;">Sign Up & Go to Dashboard</button>
+</form>
+</div>
+<div class="features-section">
+<div class="glass glass-shine feature-card">
+<div class="feature-icon">📊</div>
+<div class="feature-title">Real-Time Analytics</div>
+<div class="feature-description">Live market data and advanced charting.</div>
+</div>
+<div class="glass glass-shine feature-card">
+<div class="feature-icon">🔒</div>
+<div class="feature-title">Secure Trading</div>
+<div class="feature-description">Bank-grade security with Firebase.</div>
+</div>
+<div class="glass glass-shine feature-card">
+<div class="feature-icon">⚡</div>
+<div class="feature-title">Lightning Fast</div>
+<div class="feature-description">Execute trades in milliseconds.</div>
+</div>
+</div>
+</div>
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyCGAmwvg6QfEAIth-XQYblRtZ47WSUMppQ",
+authDomain: "optimal-trading.firebaseapp.com",
+projectId: "optimal-trading",
+storageBucket: "optimal-trading.firebasestorage.app",
+messagingSenderId: "180919975679",
+appId: "1:180919975679:web:31a8bf720f08df6d7cd6ca",
+measurementId: "G-4J31RFJK03"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+function getBrowserInfo() {
+const ua = navigator.userAgent;
+let browser = "Unknown";
+if (ua.includes("Firefox")) browser = "Firefox";
+else if (ua.includes("Edg")) browser = "Edge";
+else if (ua.includes("Chrome")) browser = "Chrome";
+else if (ua.includes("Safari")) browser = "Safari";
+else if (ua.includes("Opera") || ua.includes("OPR")) browser = "Opera";
+let device = "Desktop";
+if (/Mobi|Android/i.test(ua)) device = "Mobile";
+else if (/Tablet|iPad/i.test(ua)) device = "Tablet";
+return { browser, device, platform: navigator.platform };
+}
+async function getLocationInfo() {
+try {
+const res = await fetch('https://ipapi.co/json/');
+const data = await res.json();
+return { country: data.country_name || 'Unknown', countryCode: data.country_code || 'UN', city: data.city || 'Unknown', region: data.region || 'Unknown', ip: data.ip || 'Unknown' };
+} catch (err) {
+return { country: 'Unknown', countryCode: 'UN', city: 'Unknown', region: 'Unknown', ip: 'Unknown' };
+}
+}
+function showToast(msg, type = 'success') {
+const t = document.getElementById('toast');
+t.textContent = msg;
+t.style.display = 'block';
+t.style.borderColor = type === 'success'? '#00ff88' : '#ff4444';
+t.style.color = type === 'success'? '#00ff88' : '#ff4444';
+setTimeout(() => t.style.display = 'none', 3000);
+}
+function switchAuth(mode) {
+if (mode === 'login') {
+document.getElementById('loginForm').style.display = 'block';
+document.getElementById('signupForm').style.display = 'none';
+document.getElementById('loginTab').className = 'btn-glass btn-primary auth-tab';
+document.getElementById('signupTab').className = 'btn-glass btn-outline auth-tab';
+} else {
+document.getElementById('loginForm').style.display = 'none';
+document.getElementById('signupForm').style.display = 'block';
+document.getElementById('loginTab').className = 'btn-glass btn-outline auth-tab';
+document.getElementById('signupTab').className = 'btn-glass btn-primary auth-tab';
+}
+}
+function scrollToAuth(mode) {
+document.getElementById('authSection').scrollIntoView({ behavior: 'smooth' });
+switchAuth(mode);
+}
+document.getElementById('loginForm').addEventListener('submit', (e) => {
+e.preventDefault();
+auth.signInWithEmailAndPassword(
+document.getElementById('loginEmail').value,
+document.getElementById('loginPassword').value
+).then(() => {
+showToast('Login successful!');
+window.location.href = 'dashboard.html';
+}).catch(err => showToast(err.message, 'error'));
+});
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+e.preventDefault();
+const btn = e.target.querySelector('button[type="submit"]');
+btn.textContent = 'Creating account...';
+btn.disabled = true;
+const name = document.getElementById('signupName').value;
+const email = document.getElementById('signupEmail').value;
+const password = document.getElementById('signupPassword').value;
+const browserInfo = getBrowserInfo();
+const location = await getLocationInfo();
+auth.createUserWithEmailAndPassword(email, password)
+.then(cred => db.collection('users').doc(cred.user.uid).set({
+name, email, balance: 0, accountType: 'user', isAdmin: false, status: 'active',
+browser: browserInfo.browser, device: browserInfo.device, platform: browserInfo.platform,
+country: location.country, countryCode: location.countryCode, city: location.city, region: location.region, ip: location.ip,
+lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+createdAt: firebase.firestore.FieldValue.serverTimestamp()
+}))
+.then(() => {
+showToast('Account created! Welcome to Optimal Trading');
+setTimeout(() => window.location.href = 'dashboard.html', 800);
+})
+.catch(err => {
+showToast(err.message, 'error');
+btn.textContent = 'Sign Up & Go to Dashboard';
+btn.disabled = false;
+});
+});
+function logout() { auth.signOut().then(() => showToast('Logged out')); }
+auth.onAuthStateChanged(user => {
+if (user) {
+document.getElementById('navLoggedOut').style.display = 'none';
+document.getElementById('navLoggedIn').style.display = 'flex';
+document.getElementById('navUserName').textContent = user.email;
+} else {
+document.getElementById('navLoggedOut').style.display = 'flex';
+document.getElementById('navLoggedIn').style.display = 'none';
+}
+});
+switchAuth('login');
+</script>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCGAmwvg6QfEAIth-XQYblRtZ47WSUMppQ",
-            authDomain: "optimal-trading.firebaseapp.com",
-            projectId: "optimal-trading",
-            storageBucket: "optimal-trading.firebasestorage.app",
-            messagingSenderId: "180919975679",
-            appId: "1:180919975679:web:31a8bf720f08df6d7cd6ca",
-            measurementId: "G-4J31RFJK03"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/6aa313d6a27d1e344a75f449/default';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
 
-        function getBrowserInfo() {
-            const ua = navigator.userAgent;
-            let browser = "Unknown";
-            if (ua.includes("Firefox")) browser = "Firefox";
-            else if (ua.includes("Edg")) browser = "Edge";
-            else if (ua.includes("Chrome")) browser = "Chrome";
-            else if (ua.includes("Safari")) browser = "Safari";
-            else if (ua.includes("Opera") || ua.includes("OPR")) browser = "Opera";
-            
-            let device = "Desktop";
-            if (/Mobi|Android/i.test(ua)) device = "Mobile";
-            else if (/Tablet|iPad/i.test(ua)) device = "Tablet";
-            
-            return { browser, device, platform: navigator.platform };
-        }
-
-        async function getLocationInfo() {
-            try {
-                const res = await fetch('https://ipapi.co/json/');
-                const data = await res.json();
-                return {
-                    country: data.country_name || 'Unknown',
-                    countryCode: data.country_code || 'UN',
-                    city: data.city || 'Unknown',
-                    region: data.region || 'Unknown',
-                    ip: data.ip || 'Unknown'
-                };
-            } catch (err) {
-                console.log('Location lookup failed:', err);
-                return { country: 'Unknown', countryCode: 'UN', city: 'Unknown', region: 'Unknown', ip: 'Unknown' };
-            }
-        }
-
-        function showToast(msg, type = 'success') {
-            const t = document.getElementById('toast');
-            t.textContent = msg; t.style.display = 'block';
-            t.style.borderColor = type === 'success' ? '#00ff88' : '#ff4444';
-            t.style.color = type === 'success' ? '#00ff88' : '#ff4444';
-            setTimeout(() => t.style.display = 'none', 3000);
-        }
-
-        function switchAuth(mode) {
-            if (mode === 'login') {
-                document.getElementById('loginForm').style.display = 'block';
-                document.getElementById('signupForm').style.display = 'none';
-                document.getElementById('loginTab').className = 'btn-glass btn-primary auth-tab';
-                document.getElementById('signupTab').className = 'btn-glass btn-outline auth-tab';
-            } else {
-                document.getElementById('loginForm').style.display = 'none';
-                document.getElementById('signupForm').style.display = 'block';
-                document.getElementById('loginTab').className = 'btn-glass btn-outline auth-tab';
-                document.getElementById('signupTab').className = 'btn-glass btn-primary auth-tab';
-            }
-        }
-
-        function scrollToAuth(mode) {
-            document.getElementById('authSection').scrollIntoView({ behavior: 'smooth' });
-            switchAuth(mode);
-        }
-
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            auth.signInWithEmailAndPassword(
-                document.getElementById('loginEmail').value,
-                document.getElementById('loginPassword').value
-            ).then(() => {
-                showToast('Login successful!');
-                window.location.href = 'dashboard.html';
-            }).catch(err => showToast(err.message, 'error'));
-        });
-
-        // ⚡ SIGN UP with country detection
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.textContent = 'Creating account...';
-            btn.disabled = true;
-            
-            const name = document.getElementById('signupName').value;
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            
-            // Get browser info
-            const browserInfo = getBrowserInfo();
-            
-            // Get location info (country, city, IP)
-            const location = await getLocationInfo();
-            
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(cred => db.collection('users').doc(cred.user.uid).set({
-                    name,
-                    email,
-                    balance: 0,
-                    accountType: 'user',
-                    isAdmin: false,
-                    status: 'active',
-                    // Browser info
-                    browser: browserInfo.browser,
-                    device: browserInfo.device,
-                    platform: browserInfo.platform,
-                    // Location info
-                    country: location.country,
-                    countryCode: location.countryCode,
-                    city: location.city,
-                    region: location.region,
-                    ip: location.ip,
-                    // Timestamps
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                }))
-                .then(() => {
-                    showToast('Account created! Welcome to Optimal Trading');
-                    setTimeout(() => window.location.href = 'dashboard.html', 800);
-                })
-                .catch(err => {
-                    showToast(err.message, 'error');
-                    btn.textContent = 'Sign Up & Go to Dashboard';
-                    btn.disabled = false;
-                });
-        });
-
-        function logout() {
-            auth.signOut().then(() => showToast('Logged out'));
-        }
-
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                document.getElementById('navLoggedOut').style.display = 'none';
-                document.getElementById('navLoggedIn').style.display = 'flex';
-                document.getElementById('navUserName').textContent = user.email;
-            } else {
-                document.getElementById('navLoggedOut').style.display = 'flex';
-                document.getElementById('navLoggedIn').style.display = 'none';
-            }
-        });
-
-        switchAuth('login');
-    </script><script id="chatway" async="true" src="https://cdn.chatway.app/widget.js?id=PuuL5XeirbvW"></script>
-
-    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-    s1.async=true;
-
-    s1.setAttribute('crossorigin','*');
-    s0.parentNode.insertBefore(s1,s0);
-    })();
-    </script>
 </body>
 </html>
