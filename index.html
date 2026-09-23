@@ -57,7 +57,6 @@ body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a
 <div class="bg-orb orb-purple"></div>
 <div class="bg-orb orb-cyan"></div>
 <div class="toast" id="toast"></div>
-
 <nav class="navbar">
 <div class="navbar-logo text-shine">⚡ OPTIMAL</div>
 <div class="navbar-links" id="navLoggedOut">
@@ -70,7 +69,6 @@ body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a
 <button class="btn-glass btn-danger" onclick="logout()">Logout</button>
 </div>
 </nav>
-
 <div class="home-container">
 <h1 class="hero-title text-shine">Trade Smarter.<br>Trade Optimal.</h1>
 <p class="hero-subtitle">The most advanced trading platform with real-time analytics, secure transactions, and professional tools.</p>
@@ -78,7 +76,6 @@ body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a
 <button class="btn-glass btn-success" onclick="scrollToAuth('signup')">🚀 Get Started</button>
 <button class="btn-glass btn-outline" onclick="scrollToAuth('login')">Login</button>
 </div>
-
 <div class="glass glass-shine auth-section" id="authSection">
 <div style="text-align:center; margin-bottom:20px;">
 <div class="text-shine" style="font-size:20px; font-weight:900;">Welcome</div>
@@ -100,124 +97,41 @@ body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a
 <button type="submit" class="btn-glass btn-success" style="width:100%;">Sign Up & Go to Dashboard</button>
 </form>
 </div>
-
 <div class="features-section">
 <div class="glass glass-shine feature-card"><div class="feature-icon">📊</div><div class="feature-title">Real-Time Analytics</div><div class="feature-description">Live market data and advanced charting.</div></div>
 <div class="glass glass-shine feature-card"><div class="feature-icon">🔒</div><div class="feature-title">Secure Trading</div><div class="feature-description">Bank-grade security with Firebase.</div></div>
 <div class="glass glass-shine feature-card"><div class="feature-icon">⚡</div><div class="feature-title">Lightning Fast</div><div class="feature-description">Execute trades in milliseconds.</div></div>
 </div>
 </div>
-
 <script>
-const firebaseConfig = {
-apiKey: "AIzaSyCGAmwvg6QfEAIth-XQYblRtZ47WSUMppQ",
-authDomain: "optimal-trading.firebaseapp.com",
-projectId: "optimal-trading",
-storageBucket: "optimal-trading.firebasestorage.app",
-messagingSenderId: "180919975679",
-appId: "1:180919975679:web:31a8bf720f08df6d7cd6ca",
-measurementId: "G-4J31RFJK03"
-};
+const firebaseConfig = {apiKey: "AIzaSyCGAmwvg6QfEAIth-XQYblRtZ47WSUMppQ",authDomain: "optimal-trading.firebaseapp.com",projectId: "optimal-trading",storageBucket: "optimal-trading.firebasestorage.app",messagingSenderId: "180919975679",appId: "1:180919975679:web:31a8bf720f08df6d7cd6ca",measurementId: "G-4J31RFJK03"};
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-
-function getBrowserInfo() {
-const ua = navigator.userAgent;
-let browser = "Unknown";
-if (ua.includes("Firefox")) browser = "Firefox";
-else if (ua.includes("Edg")) browser = "Edge";
-else if (ua.includes("Chrome")) browser = "Chrome";
-else if (ua.includes("Safari")) browser = "Safari";
-else if (ua.includes("Opera") || ua.includes("OPR")) browser = "Opera";
-let device = "Desktop";
-if (/Mobi|Android/i.test(ua)) device = "Mobile";
-else if (/Tablet|iPad/i.test(ua)) device = "Tablet";
-return { browser, device, platform: navigator.platform };
-}
-async function getLocationInfo() {
-try {
-const res = await fetch('https://ipapi.co/json/');
-const data = await res.json();
-return { country: data.country_name || 'Unknown', countryCode: data.country_code || 'UN', city: data.city || 'Unknown', region: data.region || 'Unknown', ip: data.ip || 'Unknown' };
-} catch (err) {
-return { country: 'Unknown', countryCode: 'UN', city: 'Unknown', region: 'Unknown', ip: 'Unknown' };
-}
-}
-function showToast(msg, type = 'success') {
-const t = document.getElementById('toast');
-t.textContent = msg;
-t.style.display = 'block';
-t.style.borderColor = type === 'success'? '#00ff88' : '#ff4444';
-t.style.color = type === 'success'? '#00ff88' : '#ff4444';
-setTimeout(() => t.style.display = 'none', 3000);
-}
-function switchAuth(mode) {
-if (mode === 'login') {
-document.getElementById('loginForm').style.display = 'block';
-document.getElementById('signupForm').style.display = 'none';
-document.getElementById('loginTab').className = 'btn-glass btn-primary auth-tab';
-document.getElementById('signupTab').className = 'btn-glass btn-outline auth-tab';
-} else {
-document.getElementById('loginForm').style.display = 'none';
-document.getElementById('signupForm').style.display = 'block';
-document.getElementById('loginTab').className = 'btn-glass btn-outline auth-tab';
-document.getElementById('signupTab').className = 'btn-glass btn-primary auth-tab';
-}
-}
-function scrollToAuth(mode) {
-document.getElementById('authSection').scrollIntoView({ behavior: 'smooth' });
-switchAuth(mode);
-}
-document.getElementById('loginForm').addEventListener('submit', (e) => {
-e.preventDefault();
-auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value)
-.then(() => { showToast('Login successful!'); window.location.href = 'dashboard.html'; })
-.catch(err => showToast(err.message, 'error'));
-});
-document.getElementById('signupForm').addEventListener('submit', async (e) => {
-e.preventDefault();
-const btn = e.target.querySelector('button[type="submit"]');
-btn.textContent = 'Creating account...';
-btn.disabled = true;
-const name = document.getElementById('signupName').value;
-const email = document.getElementById('signupEmail').value;
-const password = document.getElementById('signupPassword').value;
-const browserInfo = getBrowserInfo();
-const location = await getLocationInfo();
-auth.createUserWithEmailAndPassword(email, password)
-.then(cred => db.collection('users').doc(cred.user.uid).set({
-name, email, balance: 0, accountType: 'user', isAdmin: false, status: 'active',
-browser: browserInfo.browser, device: browserInfo.device, platform: browserInfo.platform,
-country: location.country, countryCode: location.countryCode, city: location.city, region: location.region, ip: location.ip,
-lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-createdAt: firebase.firestore.FieldValue.serverTimestamp()
-}))
-.then(() => {
-showToast('Account created! Welcome to Optimal Trading');
-setTimeout(() => window.location.href = 'dashboard.html', 800);
-})
-.catch(err => {
-showToast(err.message, 'error');
-btn.textContent = 'Sign Up & Go to Dashboard';
-btn.disabled = false;
-});
-});
-function logout() { auth.signOut().then(() => showToast('Logged out')); }
-auth.onAuthStateChanged(user => {
-if (user) {
-document.getElementById('navLoggedOut').style.display = 'none';
-document.getElementById('navLoggedIn').style.display = 'flex';
-document.getElementById('navUserName').textContent = user.email;
-} else {
-document.getElementById('navLoggedOut').style.display = 'flex';
-document.getElementById('navLoggedIn').style.display = 'none';
-}
-});
+function getBrowserInfo(){const ua=navigator.userAgent;let browser="Unknown";if(ua.includes("Firefox"))browser="Firefox";else if(ua.includes("Edg"))browser="Edge";else if(ua.includes("Chrome"))browser="Chrome";else if(ua.includes("Safari"))browser="Safari";else if(ua.includes("Opera")||ua.includes("OPR"))browser="Opera";let device="Desktop";if(/Mobi|Android/i.test(ua))device="Mobile";else if(/Tablet|iPad/i.test(ua))device="Tablet";return{browser,device,platform:navigator.platform}}
+async function getLocationInfo(){try{const res=await fetch('https://ipapi.co/json/');const data=await res.json();return{country:data.country_name||'Unknown',countryCode:data.country_code||'UN',city:data.city||'Unknown',region:data.region||'Unknown',ip:data.ip||'Unknown'}}catch(err){return{country:'Unknown',countryCode:'UN',city:'Unknown',region:'Unknown',ip:'Unknown'}}}
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';t.style.borderColor=type==='success'?'#00ff88':'#ff4444';t.style.color=type==='success'?'#00ff88':'#ff4444';setTimeout(()=>t.style.display='none',3000)}
+function switchAuth(mode){if(mode==='login'){document.getElementById('loginForm').style.display='block';document.getElementById('signupForm').style.display='none';document.getElementById('loginTab').className='btn-glass btn-primary auth-tab';document.getElementById('signupTab').className='btn-glass btn-outline auth-tab'}else{document.getElementById('loginForm').style.display='none';document.getElementById('signupForm').style.display='block';document.getElementById('loginTab').className='btn-glass btn-outline auth-tab';document.getElementById('signupTab').className='btn-glass btn-primary auth-tab'}}
+function scrollToAuth(mode){document.getElementById('authSection').scrollIntoView({behavior:'smooth'});switchAuth(mode)}
+document.getElementById('loginForm').addEventListener('submit',(e)=>{e.preventDefault();auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value,document.getElementById('loginPassword').value).then(()=>{showToast('Login successful!');window.location.href='dashboard.html'}).catch(err=>showToast(err.message,'error'))});
+document.getElementById('signupForm').addEventListener('submit',async(e)=>{e.preventDefault();const btn=e.target.querySelector('button[type="submit"]');btn.textContent='Creating account...';btn.disabled=true;const name=document.getElementById('signupName').value;const email=document.getElementById('signupEmail').value;const password=document.getElementById('signupPassword').value;const browserInfo=getBrowserInfo();const location=await getLocationInfo();auth.createUserWithEmailAndPassword(email,password).then(cred=>db.collection('users').doc(cred.user.uid).set({name,email,balance:0,accountType:'user',isAdmin:false,status:'active',browser:browserInfo.browser,device:browserInfo.device,platform:browserInfo.platform,country:location.country,countryCode:location.countryCode,city:location.city,region:location.region,ip:location.ip,lastLogin:firebase.firestore.FieldValue.serverTimestamp(),createdAt:firebase.firestore.FieldValue.serverTimestamp()})).then(()=>{showToast('Account created!');setTimeout(()=>window.location.href='dashboard.html',800)}).catch(err=>{showToast(err.message,'error');btn.textContent='Sign Up & Go to Dashboard';btn.disabled=false})});
+function logout(){auth.signOut().then(()=>showToast('Logged out'))}
+auth.onAuthStateChanged(user=>{if(user){document.getElementById('navLoggedOut').style.display='none';document.getElementById('navLoggedIn').style.display='flex';document.getElementById('navUserName').textContent=user.email}else{document.getElementById('navLoggedOut').style.display='flex';document.getElementById('navLoggedIn').style.display='none'}});
 switchAuth('login');
 </script>
 
-<script id="chatway" async="true" src="https://cdn.chatway.app/widget.js?id=PuuL5XeirbvW"></script>
+<!-- Tawk.to ONLY - Will show immediately -->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/6aa313d6a27d1e344a75f449/default';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
 
 </body>
 </html>
