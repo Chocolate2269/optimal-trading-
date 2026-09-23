@@ -98,21 +98,9 @@ body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a
 </form>
 </div>
 <div class="features-section">
-<div class="glass glass-shine feature-card">
-<div class="feature-icon">📊</div>
-<div class="feature-title">Real-Time Analytics</div>
-<div class="feature-description">Live market data and advanced charting.</div>
-</div>
-<div class="glass glass-shine feature-card">
-<div class="feature-icon">🔒</div>
-<div class="feature-title">Secure Trading</div>
-<div class="feature-description">Bank-grade security with Firebase.</div>
-</div>
-<div class="glass glass-shine feature-card">
-<div class="feature-icon">⚡</div>
-<div class="feature-title">Lightning Fast</div>
-<div class="feature-description">Execute trades in milliseconds.</div>
-</div>
+<div class="glass glass-shine feature-card"><div class="feature-icon">📊</div><div class="feature-title">Real-Time Analytics</div><div class="feature-description">Live market data and advanced charting.</div></div>
+<div class="glass glass-shine feature-card"><div class="feature-icon">🔒</div><div class="feature-title">Secure Trading</div><div class="feature-description">Bank-grade security with Firebase.</div></div>
+<div class="glass glass-shine feature-card"><div class="feature-icon">⚡</div><div class="feature-title">Lightning Fast</div><div class="feature-description">Execute trades in milliseconds.</div></div>
 </div>
 </div>
 <script>
@@ -177,13 +165,9 @@ switchAuth(mode);
 }
 document.getElementById('loginForm').addEventListener('submit', (e) => {
 e.preventDefault();
-auth.signInWithEmailAndPassword(
-document.getElementById('loginEmail').value,
-document.getElementById('loginPassword').value
-).then(() => {
-showToast('Login successful!');
-window.location.href = 'dashboard.html';
-}).catch(err => showToast(err.message, 'error'));
+auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value)
+.then(() => { showToast('Login successful!'); window.location.href = 'dashboard.html'; })
+.catch(err => showToast(err.message, 'error'));
 });
 document.getElementById('signupForm').addEventListener('submit', async (e) => {
 e.preventDefault();
@@ -227,19 +211,7 @@ document.getElementById('navLoggedIn').style.display = 'none';
 switchAuth('login');
 </script>
 
-<!--Start of Tawk.to Script-->
-<script type="text/javascript">
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/6aa313d6a27d1e344a75f449/default';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);
-})();
-</script>
-<!--End of Tawk.to Script-->
+<script id="chatway" async="true" src="https://cdn.chatway.app/widget.js?id=PuuL5XeirbvW"></script>
 
 </body>
 </html>
