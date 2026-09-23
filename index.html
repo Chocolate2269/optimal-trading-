@@ -1,4 +1,3 @@
-<!
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,6 +57,7 @@ body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a
 <div class="bg-orb orb-purple"></div>
 <div class="bg-orb orb-cyan"></div>
 <div class="toast" id="toast"></div>
+
 <nav class="navbar">
 <div class="navbar-logo text-shine">⚡ OPTIMAL</div>
 <div class="navbar-links" id="navLoggedOut">
@@ -70,6 +70,7 @@ body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a
 <button class="btn-glass btn-danger" onclick="logout()">Logout</button>
 </div>
 </nav>
+
 <div class="home-container">
 <h1 class="hero-title text-shine">Trade Smarter.<br>Trade Optimal.</h1>
 <p class="hero-subtitle">The most advanced trading platform with real-time analytics, secure transactions, and professional tools.</p>
@@ -77,6 +78,7 @@ body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a
 <button class="btn-glass btn-success" onclick="scrollToAuth('signup')">🚀 Get Started</button>
 <button class="btn-glass btn-outline" onclick="scrollToAuth('login')">Login</button>
 </div>
+
 <div class="glass glass-shine auth-section" id="authSection">
 <div style="text-align:center; margin-bottom:20px;">
 <div class="text-shine" style="font-size:20px; font-weight:900;">Welcome</div>
@@ -98,12 +100,14 @@ body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a
 <button type="submit" class="btn-glass btn-success" style="width:100%;">Sign Up & Go to Dashboard</button>
 </form>
 </div>
+
 <div class="features-section">
 <div class="glass glass-shine feature-card"><div class="feature-icon">📊</div><div class="feature-title">Real-Time Analytics</div><div class="feature-description">Live market data and advanced charting.</div></div>
 <div class="glass glass-shine feature-card"><div class="feature-icon">🔒</div><div class="feature-title">Secure Trading</div><div class="feature-description">Bank-grade security with Firebase.</div></div>
 <div class="glass glass-shine feature-card"><div class="feature-icon">⚡</div><div class="feature-title">Lightning Fast</div><div class="feature-description">Execute trades in milliseconds.</div></div>
 </div>
 </div>
+
 <script>
 const firebaseConfig = {
 apiKey: "AIzaSyCGAmwvg6QfEAIth-XQYblRtZ47WSUMppQ",
@@ -117,6 +121,7 @@ measurementId: "G-4J31RFJK03"
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+
 function getBrowserInfo() {
 const ua = navigator.userAgent;
 let browser = "Unknown";
